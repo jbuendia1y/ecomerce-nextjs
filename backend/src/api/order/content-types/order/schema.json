@@ -1,0 +1,41 @@
+{
+  "kind": "collectionType",
+  "collectionName": "orders",
+  "info": {
+    "singularName": "order",
+    "pluralName": "orders",
+    "displayName": "Order",
+    "description": ""
+  },
+  "options": {
+    "draftAndPublish": true
+  },
+  "pluginOptions": {},
+  "attributes": {
+    "totalProducts": {
+      "type": "integer",
+      "required": true
+    },
+    "totalPrice": {
+      "type": "decimal",
+      "required": true
+    },
+    "state": {
+      "type": "enumeration",
+      "enum": [
+        "wait",
+        "process",
+        "completed",
+        "cancelled"
+      ],
+      "default": "wait",
+      "required": true
+    },
+    "order_items": {
+      "type": "relation",
+      "relation": "oneToMany",
+      "target": "api::order-item.order-item",
+      "mappedBy": "order"
+    }
+  }
+}
