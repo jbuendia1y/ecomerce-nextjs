@@ -9,13 +9,29 @@ import {
 } from "@/components/ui/dialog";
 import { PinMapIcon } from "@/modules/core/icons/PinMapIcon";
 import DeliveryUbicationForm from "./DeliveryUbicationForm";
+import { useCart } from "@/modules/cart/hooks/useCart";
+import { useState } from "react";
 
 export default function DeliveryUbicationModal() {
+  const [open, setOpen] = useState(false);
+  const { delivery } = useCart();
+
+  const handleClose = () => setOpen(false);
+  const handleOpen = () => setOpen(true);
+
   return (
-    <Dialog>
+    <Dialog
+      open={open}
+      onOpenChange={(e) => (e ? handleOpen() : handleClose())}
+    >
       <DialogTrigger asChild>
         <button className="flex items-center gap-2">
-          <PinMapIcon /> <p className="font-semibold">Ingresa tu ubicación</p>
+          <PinMapIcon />{" "}
+          <p className="font-semibold">
+            {delivery
+              ? `Entrega en ${delivery.district}`
+              : "Ingresa tu ubicación"}
+          </p>
         </button>
       </DialogTrigger>
       <DialogContent>
@@ -29,7 +45,7 @@ export default function DeliveryUbicationModal() {
             precisa
           </DialogDescription>
         </DialogHeader>
-        <DeliveryUbicationForm />
+        <DeliveryUbicationForm onSubmited={handleClose} />
       </DialogContent>
     </Dialog>
   );

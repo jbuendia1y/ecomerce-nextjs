@@ -15,6 +15,12 @@ export interface CartState {
     };
     quantity: number;
   }>;
+  delivery: {
+    city: string;
+    province: string;
+    district: string;
+    direction: string;
+  } | null;
 }
 
 export interface CartMethods {
@@ -28,13 +34,21 @@ export interface CartMethods {
   }) => void;
   removeItem: (productId: string) => void;
   updateItemQuantity: (productId: string, quantity: number) => void;
+  updateDeliveryLocation: (payload: {
+    city: string;
+    province: string;
+    district: string;
+    direction: string;
+  }) => void;
 }
 
 export const CartContext = createContext<CartState & CartMethods>({
   totalProducts: 0,
   totalPrice: 0,
   items: [],
+  delivery: null,
   addItem: () => {},
   removeItem: () => {},
   updateItemQuantity: () => {},
+  updateDeliveryLocation: () => {},
 });

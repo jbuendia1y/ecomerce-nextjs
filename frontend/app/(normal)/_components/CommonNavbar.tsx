@@ -18,9 +18,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
+import { useSession, signOut } from "next-auth/react";
 
 export default function CommonNavbar() {
   const { totalProducts } = useCart();
+  const { status } = useSession();
   const router = useRouter();
 
   const handleSearch = (search: string | null) => {
@@ -28,6 +30,10 @@ export default function CommonNavbar() {
     if (search) params.set("q", search);
 
     router.push("/store?" + params);
+  };
+
+  const handleLogout = async () => {
+    await signOut();
   };
 
   return (
@@ -55,30 +61,39 @@ export default function CommonNavbar() {
               className="rounded-full pl-9"
             />
           </form>
-          <DropdownMenu>
-            <DropdownMenuTrigger asChild>
+          {status !== "authenticated" ? (
+            <Link href="/login">
               <Button variant="outline" size="icon" className="rounded-full">
                 <UserIcon />
               </Button>
-            </DropdownMenuTrigger>
-            <DropdownMenuContent className="min-w-48 bg-white">
-              <DropdownMenuItem className="py-2 px-4">
-                <Link href="/my-orders">
+            </Link>
+          ) : (
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button variant="outline" size="icon" className="rounded-full">
+                  <UserIcon />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent className="min-w-48 bg-white">
+                <DropdownMenuItem className="py-2 px-4">
+                  <Link href="/my-orders">
+                    <div className="flex flex-row gap-3 items-center">
+                      <DeliveryBoxIcon />
+                      Mis pedidos
+                    </div>
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
+                <DropdownMenuItem className="py-2 px-4" onClick={handleLogout}>
                   <div className="flex flex-row gap-3 items-center">
-                    <DeliveryBoxIcon />
-                    Mis pedidos
+                    <LogoutIcon />
                   </div>
-                </Link>
-              </DropdownMenuItem>
-              <DropdownMenuSeparator />
-              <DropdownMenuItem className="py-2 px-4">
-                <div className="flex flex-row gap-3 items-center">
-                  <LogoutIcon />
-                </div>
-                Cerrar sessión
-              </DropdownMenuItem>
-            </DropdownMenuContent>
-          </DropdownMenu>
+                  Cerrar sessión
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
+          )}
+
           <Link href="/cart">
             <Button
               variant="outline"

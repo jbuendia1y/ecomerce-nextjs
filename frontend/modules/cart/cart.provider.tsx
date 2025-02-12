@@ -1,7 +1,8 @@
 "use client";
-import { PropsWithChildren, Reducer, useReducer } from "react";
+import { PropsWithChildren, Reducer, useEffect, useReducer } from "react";
 import { CartContext, CartState } from "./cart.context";
 import { toast } from "@/hooks/use-toast";
+import { z } from "zod";
 
 type CartActions =
   | { type: "REMOVE_ITEM"; payload: string }
@@ -19,6 +20,15 @@ type CartActions =
   | {
       type: "UPDATE_ITEM_QUANTITY";
       payload: { productId: string; quantity: number };
+    }
+  | {
+      type: "UPDATE_DELIVERY_LOCATION";
+      payload: {
+        city: string;
+        province: string;
+        district: string;
+        direction: string;
+      };
     };
 
 const reducer: Reducer<CartState, CartActions> = (prevState, action) => {
@@ -77,17 +87,59 @@ const reducer: Reducer<CartState, CartActions> = (prevState, action) => {
       state.totalPrice += difference * state.items[idx].product.price;
       return state;
     }
+    case "UPDATE_DELIVERY_LOCATION": {
+      state.delivery = action.payload;
+      return state;
+    }
     default:
       return prevState;
   }
 };
 
-export default function CartProvider(props: PropsWithChildren) {
-  const [state, dispatch] = useReducer(reducer, {
-    items: [],
-    totalPrice: 0,
-    totalProducts: 0,
+const getSavedCart = (): CartState => {
+  const cartSchema = z.object({
+    delivery: z
+      .object({
+        city: z.string(),
+        province: z.string(),
+        district: z.string(),
+        direction: z.string(),
+      })
+      .nullable(),
+    items: z.array(
+      z.object({
+        product: z.object({
+          id: z.string(),
+          slug: z.string(),
+          name: z.string(),
+          price: z.number().min(0),
+          image: z.string(),
+          stock: z.number().min(0),
+        }),
+        quantity: z.number().min(1),
+      })
+    ),
+    totalPrice: z.number().min(0),
+    totalProducts: z.number().min(0),
   });
+
+  const saved = sessionStorage.getItem("CART_BACKUP_SAVED");
+  if (saved) return cartSchema.parse(JSON.parse(saved));
+  else
+    return {
+      items: [],
+      totalPrice: 0,
+      totalProducts: 0,
+      delivery: null,
+    };
+};
+
+export default function CartProvider(props: PropsWithChildren) {
+  const [state, dispatch] = useReducer(reducer, getSavedCart());
+
+  useEffect(() => {
+    sessionStorage.setItem("CART_BACKUP_SAVED", JSON.stringify(state));
+  }, [state]);
 
   const removeItem = (productId: string) => {
     dispatch({ type: "REMOVE_ITEM", payload: productId });
@@ -109,9 +161,24 @@ export default function CartProvider(props: PropsWithChildren) {
     });
   };
 
+  const updateDeliveryLocation = (payload: {
+    city: string;
+    province: string;
+    district: string;
+    direction: string;
+  }) => {
+    dispatch({ type: "UPDATE_DELIVERY_LOCATION", payload });
+  };
+
   return (
     <CartContext.Provider
-      value={{ ...state, removeItem, addItem, updateItemQuantity }}
+      value={{
+        ...state,
+        removeItem,
+        addItem,
+        updateItemQuantity,
+        updateDeliveryLocation,
+      }}
     >
       {props.children}
     </CartContext.Provider>

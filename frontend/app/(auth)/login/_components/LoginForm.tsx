@@ -10,10 +10,9 @@ import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { signIn, useSession } from "next-auth/react";
+import { signIn } from "next-auth/react";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
 
 const loginFormSchema = z.object({
   email: z.string().email(),
@@ -24,17 +23,9 @@ type LoginFormData = z.infer<typeof loginFormSchema>;
 
 export default function LoginForm() {
   const router = useRouter();
-  const { data } = useSession();
   const { register, handleSubmit, formState } = useForm<LoginFormData>({
     resolver: zodResolver(loginFormSchema),
   });
-
-  useEffect(() => {
-    if (data?.user.strapiUserId) {
-      router.push("/");
-      router.refresh();
-    }
-  }, [data, router]);
 
   const onSubmit = async (data: LoginFormData) => {
     const response = await signIn("credentials", {
@@ -47,13 +38,14 @@ export default function LoginForm() {
         title: "Algo salió mal",
         description: "Intentelo dentro de un rato",
       });
+    } else {
+      router.push("/");
+      router.refresh();
     }
   };
 
   const handleGoogleLogin = async () => {
-    await signIn("google");
-    router.push("/");
-    router.refresh();
+    await signIn("google", { callbackUrl: "/" });
   };
 
   return (

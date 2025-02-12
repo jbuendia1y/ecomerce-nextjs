@@ -14,10 +14,14 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import {
   getCities,
+  getCityByID,
+  getDistrictByID,
   getDistricts,
+  getProvinceByID,
   getProvincies,
 } from "@/modules/core/services/pickUbication";
 import { useQuery } from "@tanstack/react-query";
+import { useCart } from "@/modules/cart/hooks/useCart";
 
 const formSchema = z.object({
   city: z.string(),
@@ -28,7 +32,10 @@ const formSchema = z.object({
 
 type FormSchemaType = z.infer<typeof formSchema>;
 
-export default function DeliveryUbicationForm() {
+export default function DeliveryUbicationForm(props: {
+  onSubmited: () => void;
+}) {
+  const { updateDeliveryLocation } = useCart();
   const { handleSubmit, setValue, watch } = useForm<FormSchemaType>({
     resolver: zodResolver(formSchema),
   });
@@ -51,8 +58,20 @@ export default function DeliveryUbicationForm() {
       (!!provinceIdSelected || provinceIdSelected?.length > 0),
   });
 
-  const onSubmit = (data: FormSchemaType) => {
-    console.log(data);
+  const onSubmit = async (data: FormSchemaType) => {
+    const city = (await getCityByID(data.city))?.name;
+    const district = (await getDistrictByID(data.district))?.name;
+    const province = (await getProvinceByID(data.province))?.name;
+    if (!city || !province || !district)
+      throw new Error("Cannot find all location data");
+
+    updateDeliveryLocation({
+      city,
+      direction: data.direction,
+      district,
+      province,
+    });
+    props.onSubmited();
   };
   const onInvalid = (errors: FieldErrors<FormSchemaType>) => {
     console.error(errors);
