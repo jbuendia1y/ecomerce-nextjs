@@ -26,6 +26,7 @@ export interface StrapiImageData {
 
 export type StrapiUser = {
   id: number;
+  documentId: string;
   username: string;
   email: string;
   blocked: boolean;

@@ -17,7 +17,7 @@
       "required": true
     },
     "totalPrice": {
-      "type": "decimal",
+      "type": "integer",
       "required": true
     },
     "state": {
@@ -27,15 +27,17 @@
         "process",
         "completed",
         "cancelled"
-      ],
-      "default": "wait",
-      "required": true
+      ]
+    },
+    "client": {
+      "type": "relation",
+      "relation": "oneToOne",
+      "target": "plugin::users-permissions.user"
     },
     "order_items": {
       "type": "relation",
       "relation": "oneToMany",
-      "target": "api::order-item.order-item",
-      "mappedBy": "order"
+      "target": "api::order-item.order-item"
     }
   }
 }

@@ -3,6 +3,7 @@ import { PropsWithChildren, Reducer, useEffect, useReducer } from "react";
 import { CartContext, CartState } from "./cart.context";
 import { toast } from "@/hooks/use-toast";
 import { z } from "zod";
+import { purcharseCart } from "./services/purcharseCart";
 
 type CartActions =
   | { type: "REMOVE_ITEM"; payload: string }
@@ -29,7 +30,8 @@ type CartActions =
         district: string;
         direction: string;
       };
-    };
+    }
+  | { type: "LOAD_SAVED_CART"; payload: CartState };
 
 const reducer: Reducer<CartState, CartActions> = (prevState, action) => {
   const state = structuredClone(prevState);
@@ -91,6 +93,13 @@ const reducer: Reducer<CartState, CartActions> = (prevState, action) => {
       state.delivery = action.payload;
       return state;
     }
+    case "LOAD_SAVED_CART": {
+      state.delivery = action.payload.delivery;
+      state.items = action.payload.items;
+      state.totalPrice = action.payload.totalPrice;
+      state.totalProducts = action.payload.totalProducts;
+      return state;
+    }
     default:
       return prevState;
   }
@@ -123,22 +132,33 @@ const getSavedCart = (): CartState => {
     totalProducts: z.number().min(0),
   });
 
-  const saved = sessionStorage.getItem("CART_BACKUP_SAVED");
+  const defaultValue = {
+    items: [],
+    totalPrice: 0,
+    totalProducts: 0,
+    delivery: null,
+  };
+
+  const saved = localStorage.getItem("CART_BACKUP_SAVED");
   if (saved) return cartSchema.parse(JSON.parse(saved));
-  else
-    return {
-      items: [],
-      totalPrice: 0,
-      totalProducts: 0,
-      delivery: null,
-    };
+  else return defaultValue;
 };
 
 export default function CartProvider(props: PropsWithChildren) {
-  const [state, dispatch] = useReducer(reducer, getSavedCart());
+  const [state, dispatch] = useReducer(reducer, {
+    items: [],
+    totalPrice: 0,
+    totalProducts: 0,
+    delivery: null,
+  });
 
   useEffect(() => {
-    sessionStorage.setItem("CART_BACKUP_SAVED", JSON.stringify(state));
+    const saved = getSavedCart();
+    dispatch({ type: "LOAD_SAVED_CART", payload: saved });
+  }, []);
+
+  useEffect(() => {
+    localStorage.setItem("CART_BACKUP_SAVED", JSON.stringify(state));
   }, [state]);
 
   const removeItem = (productId: string) => {
@@ -170,6 +190,16 @@ export default function CartProvider(props: PropsWithChildren) {
     dispatch({ type: "UPDATE_DELIVERY_LOCATION", payload });
   };
 
+  const purcharse = async () => {
+    if (!state.delivery) throw new Error("The purcharse needs delivery data");
+
+    const purcharse = await purcharseCart({
+      cart: state,
+      delivery: state.delivery,
+    });
+    console.log(purcharse);
+  };
+
   return (
     <CartContext.Provider
       value={{
@@ -178,6 +208,7 @@ export default function CartProvider(props: PropsWithChildren) {
         addItem,
         updateItemQuantity,
         updateDeliveryLocation,
+        purcharse,
       }}
     >
       {props.children}

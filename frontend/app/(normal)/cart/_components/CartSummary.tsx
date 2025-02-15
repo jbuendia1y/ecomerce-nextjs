@@ -8,7 +8,7 @@ import VisaIcon from "@/modules/core/icons/VisaIcon";
 import YapeIcon from "@/modules/core/icons/YapeIcon";
 
 export default function CartSummary() {
-  const { totalProducts, totalPrice } = useCart();
+  const { totalProducts, totalPrice, purcharse } = useCart();
 
   return (
     <Card className="max-h-max">
@@ -32,6 +32,9 @@ export default function CartSummary() {
         <Button
           className="w-full"
           disabled={totalProducts === 0 || totalPrice === 0}
+          onClick={async () => {
+            await purcharse();
+          }}
         >
           Realizar pedido
         </Button>

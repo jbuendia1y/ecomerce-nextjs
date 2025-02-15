@@ -1,7 +1,7 @@
 "use server";
 import { queryStrapi } from "@/modules/core/strapi";
 import { Product } from "../interfaces";
-import { decodeProduct } from "../adapters";
+import { createProductAddapted } from "../adapters";
 import { Paginate } from "@/modules/core/interfaces";
 import { strapiHost } from "@/modules/core/config";
 
@@ -10,7 +10,7 @@ export const getProductDetails = async (
 ): Promise<Product> => {
   const res = await queryStrapi("products/" + productId);
   const body = await res.json();
-  return decodeProduct(body.data);
+  return createProductAddapted(body.data);
 };
 
 export const getProductDetailsFromSlug = async (
@@ -26,7 +26,7 @@ export const getProductDetailsFromSlug = async (
   const firstDoc = body.data[0];
   if (!firstDoc) return null;
 
-  const product = decodeProduct(firstDoc);
+  const product = createProductAddapted(firstDoc);
 
   return {
     ...product,

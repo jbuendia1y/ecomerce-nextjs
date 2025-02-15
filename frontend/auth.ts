@@ -1,33 +1,71 @@
-import NextAuth, {
-  DefaultSession,
-  DefaultUser,
-  NextAuthOptions,
-} from "next-auth";
+import NextAuth, { DefaultSession, NextAuthConfig, Session } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { StrapiError, StrapiLoginResponse } from "./modules/core/interfaces";
 import { loginUser } from "./modules/auth/services/loginUser";
 import { queryStrapi } from "./modules/core/strapi";
+import { strapiHost } from "./modules/core/config";
 
 declare module "next-auth" {
   interface User {
     strapiToken: string;
-    strapiUserId: number;
+    strapiUserId: string;
     blocked: boolean;
+    role: {
+      name: string;
+      description: string;
+      type: string;
+    };
   }
 
   interface Session extends DefaultSession {
     strapiToken: string;
     provider: string;
+    userRole: {
+      name: string;
+      description: string;
+      type: string;
+    };
     user: {
-      strapiUserId: number;
+      strapiUserId: string;
       blocked: boolean;
-      role: string;
-    } & DefaultUser;
+      role: {
+        name: string;
+        description: string;
+        type: string;
+      };
+    } & User;
   }
 }
 
-export const authOptions: NextAuthOptions = {
+const getCurrentUserWithToken = async (
+  token: string
+): Promise<Session["user"]> => {
+  const populateResponse = await fetch(
+    strapiHost + "/api/users/me?populate=role",
+    {
+      headers: {
+        Authorization: "Bearer " + token,
+      },
+    }
+  );
+  const user = await populateResponse.json();
+  return {
+    strapiToken: token,
+    id: user.documentId,
+    blocked: user.blocked,
+    role: {
+      description: user.role.description,
+      name: user.role.name,
+      type: user.role.type,
+    },
+    strapiUserId: user.documentId,
+    email: user.email,
+    name: user.username,
+  };
+};
+
+export const authOptions: NextAuthConfig = {
   providers: [
     GoogleProvider({
       clientId: process.env.AUTH_GOOGLE_CLIENT_ID ?? "",
@@ -48,9 +86,13 @@ export const authOptions: NextAuthOptions = {
           return null;
         }
         const strapiLoginData = await loginUser({
-          email: credentials!.identifier,
-          password: credentials!.password,
+          email: credentials!.identifier as string,
+          password: credentials!.password as string,
         });
+        const populateResponse = await getCurrentUserWithToken(
+          strapiLoginData.jwt
+        );
+
         if (!strapiLoginData.jwt || !strapiLoginData.user)
           throw new Error(
             (strapiLoginData as unknown as StrapiError).error.message
@@ -59,17 +101,17 @@ export const authOptions: NextAuthOptions = {
         return {
           name: strapiLoginData.user.username,
           email: strapiLoginData.user.email,
-          id: strapiLoginData.user.id.toString(),
-          strapiUserId: strapiLoginData.user.id,
+          id: strapiLoginData.user.documentId,
+          strapiUserId: strapiLoginData.user.documentId,
           blocked: strapiLoginData.user.blocked,
           strapiToken: strapiLoginData.jwt,
+          role: populateResponse.role,
         };
       },
     }),
   ],
   callbacks: {
     async signIn({ account, profile }) {
-      // console.log('singIn callback', { account, profile, user });
       if (
         account &&
         account.provider === "google" &&
@@ -86,6 +128,7 @@ export const authOptions: NextAuthOptions = {
         if (session?.username) token.name = session.username;
         if (session?.strapiToken) token.strapiToken = session.strapiToken;
       }
+
       if (!account) return token;
 
       if (account.provider === "google") {
@@ -95,7 +138,6 @@ export const authOptions: NextAuthOptions = {
         );
         if (!strapiResponse.ok) {
           const strapiError: StrapiError = await strapiResponse.json();
-          // console.log('strapiError', strapiError);
           throw new Error(strapiError.error.message);
         }
         const strapiLoginResponse: StrapiLoginResponse =
@@ -103,7 +145,7 @@ export const authOptions: NextAuthOptions = {
         // customize token
         // name and email will already be on here
         token.strapiToken = strapiLoginResponse.jwt;
-        token.strapiUserId = strapiLoginResponse.user.id;
+        token.strapiUserId = strapiLoginResponse.user.documentId;
         token.provider = account.provider;
         token.blocked = strapiLoginResponse.user.blocked;
       }
@@ -114,13 +156,20 @@ export const authOptions: NextAuthOptions = {
         token.provider = account.provider;
         token.blocked = user.blocked;
       }
+
+      const populateResponse = await getCurrentUserWithToken(
+        token.strapiToken as string
+      );
+      token.userRole = populateResponse.role;
+
       return token;
     },
     async session({ token, session }) {
       session.strapiToken = token.strapiToken as string;
       session.provider = token.provider as string;
-      session.user.strapiUserId = token.strapiUserId as number;
+      session.user.strapiUserId = token.strapiUserId as string;
       session.user.blocked = token.blocked as boolean;
+      session.userRole = token.userRole as Session["user"]["role"];
 
       return session;
     },
@@ -136,4 +185,4 @@ export const authOptions: NextAuthOptions = {
   },
 };
 
-export const {} = NextAuth(authOptions);
+export const { auth, handlers, signIn, signOut } = NextAuth(authOptions);

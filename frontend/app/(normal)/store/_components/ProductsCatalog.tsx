@@ -91,27 +91,35 @@ export default function ProductsCatalog() {
         </Pagination>
       </div>
       <div className="flex flex-row flex-wrap gap-6 py-6 max-w-5xl min-h-32 mx-auto">
-        {isLoading && (
+        {isLoading ? (
           <div className="grid w-full h-80 place-content-center bg-slate-400 animate-pulse rounded-md">
             <h3 className="flex items-center gap-3 text-2xl">
               <Loader2 className="animate-spin" size="30px" />
               Encontrando productos
             </h3>
           </div>
+        ) : page?.data.length === 0 ? (
+          <div className="grid w-full h-80 place-content-center bg-slate-300 rounded-md text-center">
+            <h3 className="flex items-center gap-3 text-2xl font-medium">
+              Parece que nuestra tienda no tiene ese producto
+            </h3>
+            <p>Busque otra opción entre nuestras alternativas</p>
+          </div>
+        ) : (
+          page?.data.map((product) => {
+            return (
+              <ProductCard
+                key={"store-catalog-product-" + product.id}
+                image={product.image.url}
+                name={product.name}
+                slug={product.slug}
+                id={product.id}
+                price={product.price}
+                stock={product.stock}
+              />
+            );
+          })
         )}
-        {page?.data.map((product) => {
-          return (
-            <ProductCard
-              key={"store-catalog-product-" + product.id}
-              image={product.image.url}
-              name={product.name}
-              slug={product.slug}
-              id={product.id}
-              price={product.price}
-              stock={product.stock}
-            />
-          );
-        })}
       </div>
     </div>
   );

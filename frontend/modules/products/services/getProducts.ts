@@ -2,7 +2,7 @@
 import { Paginate } from "@/modules/core/interfaces";
 import { queryStrapi } from "@/modules/core/strapi";
 import { Product } from "../interfaces";
-import { decodeProduct } from "../adapters";
+import { createProductAddapted } from "../adapters";
 import { strapiHost } from "@/modules/core/config";
 
 export const getProducts = async (
@@ -24,7 +24,7 @@ export const getProducts = async (
   const body: Paginate<Product> = await res.json();
 
   const data = body.data.map((v) => {
-    return decodeProduct({
+    return createProductAddapted({
       ...v,
       image: { ...v.image, url: strapiHost + v.image.url },
     });

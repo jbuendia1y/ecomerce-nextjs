@@ -14,7 +14,7 @@ const productSchema = z.object({
 });
 
 // eslint-disable-next-line @typescript-eslint/no-explicit-any
-export const decodeProduct = (data: any) => {
+export const createProductAddapted = (data: any) => {
   // eslint-disable-next-line @typescript-eslint/no-unused-vars
   const { id: _, ...dataProduct } = data;
   return productSchema.parse({ id: dataProduct.documentId, ...dataProduct });

@@ -10,9 +10,9 @@ import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
-import { signIn } from "next-auth/react";
 import { toast } from "@/hooks/use-toast";
 import { useRouter } from "next/navigation";
+import { signIn } from "next-auth/react";
 
 const loginFormSchema = z.object({
   email: z.string().email(),

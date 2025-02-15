@@ -18,11 +18,11 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
-import { useSession, signOut } from "next-auth/react";
+import { signOut, useSession } from "next-auth/react";
 
 export default function CommonNavbar() {
   const { totalProducts } = useCart();
-  const { status } = useSession();
+  const { status, data } = useSession();
   const router = useRouter();
 
   const handleSearch = (search: string | null) => {
@@ -75,6 +75,16 @@ export default function CommonNavbar() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="min-w-48 bg-white">
+                {data.userRole.type === "deliveryman" ? (
+                  <DropdownMenuItem className="py-2 px-4">
+                    <Link href="/delivery">
+                      <div className="flex flex-row gap-3 items-center">
+                        <DeliveryBoxIcon />
+                        Delivery
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                ) : null}
                 <DropdownMenuItem className="py-2 px-4">
                   <Link href="/my-orders">
                     <div className="flex flex-row gap-3 items-center">
