@@ -1,71 +1,14 @@
 import NextAuth, { DefaultSession, NextAuthConfig, Session } from "next-auth";
+import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import GoogleProvider from "next-auth/providers/google";
 import CredentialsProvider from "next-auth/providers/credentials";
 import { StrapiError, StrapiLoginResponse } from "./modules/core/interfaces";
 import { loginUser } from "./modules/auth/services/loginUser";
 import { queryStrapi } from "./modules/core/strapi";
-import { strapiHost } from "./modules/core/config";
-
-declare module "next-auth" {
-  interface User {
-    strapiToken: string;
-    strapiUserId: string;
-    blocked: boolean;
-    role: {
-      name: string;
-      description: string;
-      type: string;
-    };
-  }
-
-  interface Session extends DefaultSession {
-    strapiToken: string;
-    provider: string;
-    userRole: {
-      name: string;
-      description: string;
-      type: string;
-    };
-    user: {
-      strapiUserId: string;
-      blocked: boolean;
-      role: {
-        name: string;
-        description: string;
-        type: string;
-      };
-    } & User;
-  }
-}
-
-const getCurrentUserWithToken = async (
-  token: string
-): Promise<Session["user"]> => {
-  const populateResponse = await fetch(
-    strapiHost + "/api/users/me?populate=role",
-    {
-      headers: {
-        Authorization: "Bearer " + token,
-      },
-    }
-  );
-  const user = await populateResponse.json();
-  return {
-    strapiToken: token,
-    id: user.documentId,
-    blocked: user.blocked,
-    role: {
-      description: user.role.description,
-      name: user.role.name,
-      type: user.role.type,
-    },
-    strapiUserId: user.documentId,
-    email: user.email,
-    name: user.username,
-  };
-};
+import client from "./lib/db";
 
 export const authOptions: NextAuthConfig = {
+  adapter: MongoDBAdapter(client, { databaseName: "COMMON" }),
   providers: [
     GoogleProvider({
       clientId: process.env.AUTH_GOOGLE_CLIENT_ID ?? "",
@@ -74,19 +17,19 @@ export const authOptions: NextAuthConfig = {
     CredentialsProvider({
       name: "email and password",
       credentials: {
-        identifier: {
-          label: "Email or username *",
+        email: {
+          label: "Email*",
           type: "text",
         },
         password: { label: "Password *", type: "password" },
       },
       async authorize(credentials) {
         // make sure the are credentials
-        if (!credentials || !credentials.identifier || !credentials.password) {
+        if (!credentials || !credentials.email || !credentials.password) {
           return null;
         }
         const strapiLoginData = await loginUser({
-          email: credentials!.identifier as string,
+          email: credentials!.email as string,
           password: credentials!.password as string,
         });
         const populateResponse = await getCurrentUserWithToken(

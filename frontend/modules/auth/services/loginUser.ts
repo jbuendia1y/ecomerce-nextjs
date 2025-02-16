@@ -1,22 +1,12 @@
 "use server";
 import { StrapiLoginResponse } from "@/modules/core/interfaces";
-import { queryStrapi } from "@/modules/core/strapi";
+import { UserRepository } from "@/modules/users/user.repository";
 
 export const loginUser = async (payload: {
   email: string;
   password: string;
 }): Promise<StrapiLoginResponse> => {
-  const res = await queryStrapi("auth/local", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      identifier: payload.email,
-      password: payload.password,
-    }),
-  });
-  const data = await res.json();
+  const exist = UserRepository.findOneByEmail(payload.email);
 
   return data;
 };
