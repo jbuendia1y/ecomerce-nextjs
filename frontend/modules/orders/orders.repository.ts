@@ -48,8 +48,8 @@ export const OrdersRepository = {
     });
     return doc ? createOrderAddapted(doc) : null;
   },
-  async create(data: CreateOrder) {
-    await collection.insertOne({
+  async create(data: CreateOrder): Promise<string> {
+    const result = await collection.insertOne({
       clientId: data.clientId,
       createdAt: data.createdAt,
       items: data.items,
@@ -58,6 +58,7 @@ export const OrdersRepository = {
       totalProducts: data.totalProducts,
       delivery: data.delivery,
     });
+    return result.insertedId.toHexString();
   },
   async update(
     id: string,

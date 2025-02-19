@@ -1,5 +1,11 @@
 "use client";
-import { PropsWithChildren, Reducer, useEffect, useReducer } from "react";
+import {
+  PropsWithChildren,
+  Reducer,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
 import { CartContext, CartState } from "./cart.context";
 import { toast } from "@/hooks/use-toast";
 import { z } from "zod";
@@ -145,6 +151,7 @@ const getSavedCart = (): CartState => {
 };
 
 export default function CartProvider(props: PropsWithChildren) {
+  const [isLoaded, setIsLoaded] = useState(false);
   const [state, dispatch] = useReducer(reducer, {
     items: [],
     totalPrice: 0,
@@ -152,14 +159,17 @@ export default function CartProvider(props: PropsWithChildren) {
     delivery: null,
   });
 
-  useEffect(() => {
-    const saved = getSavedCart();
-    dispatch({ type: "LOAD_SAVED_CART", payload: saved });
-  }, []);
+  useEffect(() => {}, []);
 
   useEffect(() => {
-    localStorage.setItem("CART_BACKUP_SAVED", JSON.stringify(state));
-  }, [state]);
+    if (!isLoaded) {
+      const saved = getSavedCart();
+      dispatch({ type: "LOAD_SAVED_CART", payload: saved });
+      setIsLoaded(true);
+    } else {
+      localStorage.setItem("CART_BACKUP_SAVED", JSON.stringify(state));
+    }
+  }, [isLoaded, state]);
 
   const removeItem = (productId: string) => {
     dispatch({ type: "REMOVE_ITEM", payload: productId });

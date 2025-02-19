@@ -33,5 +33,6 @@ export interface Order {
   }>;
   clientId: string;
   delivery: OrderDelivery;
+  paymentId?: string | null;
   createdAt: string;
 }

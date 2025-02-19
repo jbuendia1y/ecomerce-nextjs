@@ -9,7 +9,7 @@ export const createOrder = async (data: CreateOrder) => {
   if (!session) return null;
   if (!session.user?.id) return null;
 
-  await OrdersRepository.create({
+  return await OrdersRepository.create({
     totalPrice: data.totalPrice,
     totalProducts: data.totalProducts,
     items: data.items,
