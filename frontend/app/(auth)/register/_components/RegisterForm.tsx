@@ -26,11 +26,12 @@ export default function RegisterForm() {
   });
 
   const onSubmit = async (data: RegisterFormData) => {
-    await registerUser({
+    const res = await registerUser({
       username: data.username,
       email: data.email,
       password: data.password,
     });
+    console.log(res);
   };
 
   return (

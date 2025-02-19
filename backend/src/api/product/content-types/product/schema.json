@@ -16,11 +16,6 @@
       "type": "string",
       "unique": true
     },
-    "slug": {
-      "type": "string",
-      "required": true,
-      "unique": true
-    },
     "description": {
       "type": "blocks"
     },
@@ -39,6 +34,11 @@
         "images",
         "files"
       ]
+    },
+    "slug": {
+      "type": "uid",
+      "targetField": "name",
+      "required": true
     }
   }
 }

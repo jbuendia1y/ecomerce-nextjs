@@ -24,7 +24,6 @@ export const purcharseCart = async (data: {
   });
 
   const { data: orderData } = await res?.json();
-  console.log({ orderData });
   if (!res?.ok) return null;
   const purcharseRes = await fetch(strapiHost + "/api/purcharse", {
     method: "POST",
@@ -37,6 +36,5 @@ export const purcharseCart = async (data: {
     }),
   });
   const purcharseData = await purcharseRes.json();
-  console.log({ purcharseData });
-  return purcharseData;
+  return purcharseData as { urlToPay: string };
 };

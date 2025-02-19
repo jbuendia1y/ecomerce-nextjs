@@ -9,6 +9,7 @@ import { Loader2 } from "lucide-react";
 import Link from "next/link";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import { forgotPasswordAction } from "../action";
 
 const ForgotPasswordFormSchema = z.object({
   email: z.string().email(),
@@ -24,12 +25,9 @@ export default function ForgotPasswordForm() {
   );
 
   const onSubmit = async (data: ForgotPasswordFormData) => {
-    return new Promise<void>((resolve) => {
-      setTimeout(() => {
-        console.log(data);
-        resolve();
-      }, 5000);
-    });
+    const formData = new FormData();
+    formData.set("email", data.email);
+    await forgotPasswordAction(formData);
   };
 
   return (

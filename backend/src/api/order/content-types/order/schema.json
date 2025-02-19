@@ -38,6 +38,10 @@
       "type": "relation",
       "relation": "oneToMany",
       "target": "api::order-item.order-item"
+    },
+    "delivery": {
+      "type": "json",
+      "required": true
     }
   }
 }

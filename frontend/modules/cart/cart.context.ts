@@ -40,7 +40,7 @@ export interface CartMethods {
     district: string;
     direction: string;
   }) => void;
-  purcharse: () => Promise<void>;
+  purcharse: () => Promise<{ urlToPay: string } | null>;
 }
 
 export const CartContext = createContext<CartState & CartMethods>({
@@ -52,5 +52,5 @@ export const CartContext = createContext<CartState & CartMethods>({
   removeItem: () => {},
   updateItemQuantity: () => {},
   updateDeliveryLocation: () => {},
-  purcharse: () => Promise.resolve(),
+  purcharse: () => Promise.resolve(null),
 });

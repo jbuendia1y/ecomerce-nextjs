@@ -1,6 +1,4 @@
 "use server";
-import { toast } from "@/hooks/use-toast";
-import { StrapiError } from "@/modules/core/interfaces";
 import { queryStrapi } from "@/modules/core/strapi";
 
 interface LoginAuthResponse {
@@ -24,7 +22,6 @@ export const registerUser = async (payload: {
       "Content-Type": "application/json",
     },
     body: JSON.stringify({
-      name: payload.username,
       username: payload.username,
       email: payload.email,
       password: payload.password,
@@ -33,12 +30,5 @@ export const registerUser = async (payload: {
 
   const data = await res.json();
 
-  if (!res.ok) {
-    const { error } = data as StrapiError;
-    toast({
-      title: error.name,
-      description: error.message,
-    });
-  }
   return data;
 };

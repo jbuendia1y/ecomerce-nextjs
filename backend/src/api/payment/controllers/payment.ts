@@ -25,7 +25,7 @@ export default factories.createCoreController("api::payment.payment", {
       type: "payment";
       user_id: number;
     };
-
+    console.log(body);
     await strapi.service("api::payment.payment").addPayment(body.data.id);
 
     ctx.status = 200;

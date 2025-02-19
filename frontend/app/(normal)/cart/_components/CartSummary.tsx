@@ -6,6 +6,7 @@ import { useCart } from "@/modules/cart/hooks/useCart";
 import MastercardIcon from "@/modules/core/icons/MastercardIcon";
 import VisaIcon from "@/modules/core/icons/VisaIcon";
 import YapeIcon from "@/modules/core/icons/YapeIcon";
+import { redirect } from "next/navigation";
 
 export default function CartSummary() {
   const { totalProducts, totalPrice, purcharse } = useCart();
@@ -33,7 +34,9 @@ export default function CartSummary() {
           className="w-full"
           disabled={totalProducts === 0 || totalPrice === 0}
           onClick={async () => {
-            await purcharse();
+            const payload = await purcharse();
+            if (!payload) return;
+            redirect(payload.urlToPay);
           }}
         >
           Realizar pedido

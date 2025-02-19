@@ -1,5 +1,11 @@
 "use client";
-import { PropsWithChildren, Reducer, useEffect, useReducer } from "react";
+import {
+  PropsWithChildren,
+  Reducer,
+  useEffect,
+  useReducer,
+  useState,
+} from "react";
 import { CartContext, CartState } from "./cart.context";
 import { toast } from "@/hooks/use-toast";
 import { z } from "zod";
@@ -145,6 +151,7 @@ const getSavedCart = (): CartState => {
 };
 
 export default function CartProvider(props: PropsWithChildren) {
+  const [isLoadingSaved, setIsLoadingSaved] = useState(true);
   const [state, dispatch] = useReducer(reducer, {
     items: [],
     totalPrice: 0,
@@ -153,13 +160,12 @@ export default function CartProvider(props: PropsWithChildren) {
   });
 
   useEffect(() => {
-    const saved = getSavedCart();
-    dispatch({ type: "LOAD_SAVED_CART", payload: saved });
-  }, []);
-
-  useEffect(() => {
-    localStorage.setItem("CART_BACKUP_SAVED", JSON.stringify(state));
-  }, [state]);
+    if (isLoadingSaved) {
+      const saved = getSavedCart();
+      dispatch({ type: "LOAD_SAVED_CART", payload: saved });
+      setIsLoadingSaved(true);
+    } else localStorage.setItem("CART_BACKUP_SAVED", JSON.stringify(state));
+  }, [state, isLoadingSaved]);
 
   const removeItem = (productId: string) => {
     dispatch({ type: "REMOVE_ITEM", payload: productId });
@@ -190,14 +196,14 @@ export default function CartProvider(props: PropsWithChildren) {
     dispatch({ type: "UPDATE_DELIVERY_LOCATION", payload });
   };
 
-  const purcharse = async () => {
+  const purcharse = async (): Promise<{ urlToPay: string } | null> => {
     if (!state.delivery) throw new Error("The purcharse needs delivery data");
 
     const purcharse = await purcharseCart({
       cart: state,
       delivery: state.delivery,
     });
-    console.log(purcharse);
+    return purcharse;
   };
 
   return (

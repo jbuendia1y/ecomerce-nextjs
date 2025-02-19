@@ -449,6 +449,7 @@ export interface ApiOrderOrder extends Struct.CollectionTypeSchema {
     createdAt: Schema.Attribute.DateTime;
     createdBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
       Schema.Attribute.Private;
+    delivery: Schema.Attribute.JSON & Schema.Attribute.Required;
     locale: Schema.Attribute.String & Schema.Attribute.Private;
     localizations: Schema.Attribute.Relation<'oneToMany', 'api::order.order'> &
       Schema.Attribute.Private;
@@ -524,9 +525,7 @@ export interface ApiProductProduct extends Struct.CollectionTypeSchema {
     name: Schema.Attribute.String & Schema.Attribute.Unique;
     price: Schema.Attribute.Integer & Schema.Attribute.Required;
     publishedAt: Schema.Attribute.DateTime;
-    slug: Schema.Attribute.String &
-      Schema.Attribute.Required &
-      Schema.Attribute.Unique;
+    slug: Schema.Attribute.UID<'name'> & Schema.Attribute.Required;
     stock: Schema.Attribute.Integer;
     updatedAt: Schema.Attribute.DateTime;
     updatedBy: Schema.Attribute.Relation<'oneToOne', 'admin::user'> &
