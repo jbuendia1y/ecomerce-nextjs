@@ -1,6 +1,3 @@
-import { StrapiUser } from "../core/interfaces";
-import { Product } from "../products/interfaces";
-
 export enum OrderState {
   wait = "wait",
   process = "process",
@@ -8,17 +5,21 @@ export enum OrderState {
   cancelled = "cancelled",
 }
 
+export interface OrderDelivery {
+  city: string;
+  province: string;
+  district: string;
+  direction: string;
+}
+
 export interface CreateOrder {
   totalProducts: number;
   totalPrice: number;
-  items: Array<{ product: string; quantity: number }>;
-  delivery: {
-    city: string;
-    province: string;
-    district: string;
-    direction: string;
-  };
-  client: string;
+  status: OrderState;
+  items: Array<{ productId: string; quantity: number }>;
+  delivery: OrderDelivery;
+  clientId: string;
+  createdAt: string;
 }
 
 export interface Order {
@@ -26,6 +27,11 @@ export interface Order {
   status: OrderState;
   totalProducts: number;
   totalPrice: number;
-  items: Array<{ product: Product; quantity: number }>;
-  client: StrapiUser;
+  items: Array<{
+    productId: string;
+    quantity: number;
+  }>;
+  clientId: string;
+  delivery: OrderDelivery;
+  createdAt: string;
 }

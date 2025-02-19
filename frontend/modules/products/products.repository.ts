@@ -1,11 +1,11 @@
 import { db } from "@/lib/db";
 import { CreateProduct, Product } from "./interfaces";
-import { BSON, WithId } from "mongodb";
+import { BSON, Filter, WithId } from "mongodb";
 import { Paginate } from "../core/interfaces";
 
 const collection = db.collection<Omit<Product, "id">>("products");
 
-const createAdaptedProduct = (doc: WithId<Omit<Product, "id">>): Product => {
+const createProductAdapted = (doc: WithId<Omit<Product, "id">>): Product => {
   return {
     id: doc._id.toHexString(),
     image: doc.image,
@@ -19,21 +19,26 @@ const createAdaptedProduct = (doc: WithId<Omit<Product, "id">>): Product => {
 
 export const ProductsRepository = {
   async find(options: {
-    search: string;
+    search: string | null;
     page: number;
     limit: number;
   }): Promise<Paginate<Product>> {
-    const query = collection.find(
-      { $text: { $search: options.search } },
-      { limit: options.limit, skip: (options.page - 1) * options.limit }
-    );
-    const totalDocs = await collection.countDocuments({
-      $text: { $search: options.search },
+    let filter: Filter<Omit<Product, "id">> = {};
+    if (options.search) {
+      filter = {
+        $text: { $search: options.search },
+      };
+    }
+
+    const query = collection.find(filter, {
+      limit: options.limit,
+      skip: (options.page - 1) * options.limit,
     });
+    const totalDocs = await collection.countDocuments(filter);
     const docs = await query.toArray();
 
     return {
-      data: docs.map((v) => createAdaptedProduct(v)),
+      data: docs.map((v) => createProductAdapted(v)),
       meta: {
         pagination: {
           page: options.page,
@@ -49,14 +54,14 @@ export const ProductsRepository = {
       _id: { $eq: BSON.ObjectId.createFromHexString(productId) },
     });
     if (!doc) return null;
-    return createAdaptedProduct(doc);
+    return createProductAdapted(doc);
   },
   async findOneBySlug(slug: string): Promise<Product | null> {
     const product = await collection.findOne({
       slug: { $eq: slug },
     });
     if (!product) return null;
-    return createAdaptedProduct(product);
+    return createProductAdapted(product);
   },
   async create(data: CreateProduct) {
     await collection.insertOne({
@@ -79,5 +84,8 @@ export const ProductsRepository = {
         },
       }
     );
+  },
+  async initialize() {
+    await collection.createIndex({ slug: 1, name: 1, price: -1, stock: -1 });
   },
 };

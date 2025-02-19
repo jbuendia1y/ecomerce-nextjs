@@ -110,7 +110,7 @@ export default function ProductsCatalog() {
             return (
               <ProductCard
                 key={"store-catalog-product-" + product.id}
-                image={product.image.url}
+                image={product.image}
                 name={product.name}
                 slug={product.slug}
                 id={product.id}
