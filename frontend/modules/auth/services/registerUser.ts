@@ -1,44 +1,21 @@
 "use server";
-import { toast } from "@/hooks/use-toast";
-import { StrapiError } from "@/modules/core/interfaces";
-import { queryStrapi } from "@/modules/core/strapi";
-
-interface LoginAuthResponse {
-  jwt: string;
-  user: {
-    id: string;
-    username: string;
-    email: string;
-    confirmed: boolean;
-  };
-}
+import bcrypt from "bcryptjs";
+import { UserRepository } from "@/modules/users/user.repository";
 
 export const registerUser = async (payload: {
-  username: string;
+  name: string;
   email: string;
   password: string;
-}): Promise<LoginAuthResponse> => {
-  const res = await queryStrapi("auth/local/register", {
-    method: "POST",
-    headers: {
-      "Content-Type": "application/json",
-    },
-    body: JSON.stringify({
-      name: payload.username,
-      username: payload.username,
-      email: payload.email,
-      password: payload.password,
-    }),
+}): Promise<void> => {
+  const exist = await UserRepository.findOneByEmail(payload.email);
+  if (exist) throw new Error("User is already taken");
+
+  const salt = await bcrypt.genSalt(10);
+  const password = await bcrypt.hash(payload.password, salt);
+
+  await UserRepository.create({
+    name: payload.name,
+    email: payload.email,
+    password,
   });
-
-  const data = await res.json();
-
-  if (!res.ok) {
-    const { error } = data as StrapiError;
-    toast({
-      title: error.name,
-      description: error.message,
-    });
-  }
-  return data;
 };

@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 import { Paginate } from "@/modules/core/interfaces";
 import { Order } from "../interfaces";
 import { OrdersRepository } from "../orders.repository";

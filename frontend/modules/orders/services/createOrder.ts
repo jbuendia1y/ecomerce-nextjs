@@ -1,7 +1,7 @@
 "use server";
 
 import { CreateOrder, OrderState } from "../interfaces";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 import { OrdersRepository } from "../orders.repository";
 
 export const createOrder = async (data: CreateOrder) => {

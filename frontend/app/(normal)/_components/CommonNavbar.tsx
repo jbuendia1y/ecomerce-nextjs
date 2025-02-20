@@ -1,9 +1,6 @@
 "use client";
-import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { useCart } from "@/modules/cart/hooks/useCart";
-import CartIcon from "@/modules/core/icons/CartIcon";
 import SearchIcon from "@/modules/core/icons/SearchIcon";
 import UserIcon from "@/modules/core/icons/UserIcon";
 import { useRouter } from "next/navigation";
@@ -19,11 +16,21 @@ import {
 } from "@/components/ui/dropdown-menu";
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
+import NavbarCartButton from "./NavbarCartButton";
+import { useQuery } from "@tanstack/react-query";
+import { getMyProfile } from "@/modules/auth/services/getMyProfile";
 
 export default function CommonNavbar() {
-  const { totalProducts } = useCart();
   const { status, data } = useSession();
+  const { data: user } = useQuery({
+    queryKey: ["user-data-profile", data?.user?.email],
+    queryFn: async () => {
+      return data?.user?.email ? await getMyProfile(data.user.email) : null;
+    },
+    enabled: !!data?.user?.email,
+  });
   const router = useRouter();
+  console.log({ user, status, data });
 
   const handleSearch = (search: string | null) => {
     const params = new URLSearchParams();
@@ -75,7 +82,17 @@ export default function CommonNavbar() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="min-w-48 bg-white">
-                {data.userRole.type === "deliveryman" ? (
+                {user?.role === "admin" ? (
+                  <DropdownMenuItem className="py-2 px-4">
+                    <Link href="/admin">
+                      <div className="flex flex-row gap-3 items-center">
+                        <DeliveryBoxIcon />
+                        Admin panel
+                      </div>
+                    </Link>
+                  </DropdownMenuItem>
+                ) : null}
+                {user?.role === "deliveryman" ? (
                   <DropdownMenuItem className="py-2 px-4">
                     <Link href="/delivery">
                       <div className="flex flex-row gap-3 items-center">
@@ -104,22 +121,7 @@ export default function CommonNavbar() {
             </DropdownMenu>
           )}
 
-          <Link href="/cart">
-            <Button
-              variant="outline"
-              size="icon"
-              className="relative rounded-full"
-            >
-              <CartIcon />
-              {totalProducts > 0 ? (
-                <Badge className="absolute -top-2 -right-2 w-5 h-5 p-0 flex items-center justify-center rounded-full">
-                  {totalProducts}
-                </Badge>
-              ) : (
-                <></>
-              )}
-            </Button>
-          </Link>
+          <NavbarCartButton />
         </div>
       </nav>
       <div className="p-2 px-3 max-w-7xl mx-auto border-b-[1px] border-slate-200">

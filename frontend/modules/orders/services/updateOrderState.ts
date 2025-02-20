@@ -1,5 +1,5 @@
 "use server";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 import { OrderState } from "../interfaces";
 import { getOrderDetails } from "./getOrderDetails";
 import { OrdersRepository } from "../orders.repository";

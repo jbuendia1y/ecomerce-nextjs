@@ -13,7 +13,7 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 
 const registerFormSchema = z.object({
-  username: z.string().min(4).max(30).trim(),
+  name: z.string().min(4).max(30).trim(),
   email: z.string().email(),
   password: z.string().min(4).max(12),
 });
@@ -27,7 +27,7 @@ export default function RegisterForm() {
 
   const onSubmit = async (data: RegisterFormData) => {
     await registerUser({
-      username: data.username,
+      name: data.name,
       email: data.email,
       password: data.password,
     });
@@ -45,18 +45,18 @@ export default function RegisterForm() {
       <form onSubmit={handleSubmit(onSubmit)}>
         <div>
           <Label
-            htmlFor="username"
+            htmlFor="name"
             className={cn({
-              "text-red-500": !!formState.errors.username,
+              "text-red-500": !!formState.errors.name,
             })}
           >
-            Nombre de usuario
+            Nombre
           </Label>
           <Input
-            id="username"
+            id="name"
             type="text"
-            placeholder="example"
-            {...register("username")}
+            placeholder="Ingrese su nombre"
+            {...register("name")}
           />
         </div>
         <div>
@@ -88,6 +88,7 @@ export default function RegisterForm() {
             id="password"
             type="password"
             placeholder="Ingrese su contraseña"
+            maxLength={12}
             {...register("password")}
           />
         </div>

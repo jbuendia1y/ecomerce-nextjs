@@ -29,7 +29,7 @@ export default function LoginForm() {
 
   const onSubmit = async (data: LoginFormData) => {
     const response = await signIn("credentials", {
-      identifier: data.email,
+      email: data.email,
       password: data.password,
       redirect: false,
     });

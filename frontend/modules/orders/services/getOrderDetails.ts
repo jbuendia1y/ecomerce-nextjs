@@ -1,6 +1,6 @@
 "use server";
 
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 import { Order } from "../interfaces";
 import { OrdersRepository } from "../orders.repository";
 

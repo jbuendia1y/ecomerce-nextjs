@@ -1,5 +1,5 @@
 "use server";
-import { auth } from "@/auth";
+import { auth } from "@/lib/auth";
 import { CartState } from "../cart.context";
 import { createOrder } from "@/modules/orders/services/createOrder";
 import { OrderState } from "@/modules/orders/interfaces";
