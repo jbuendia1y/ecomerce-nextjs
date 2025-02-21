@@ -7,7 +7,7 @@ export function cn(...inputs: ClassValue[]) {
 
 export function getPaginateParams(params: URLSearchParams) {
   return {
-    page: parseInt(params.get("page") ?? "0"),
+    page: parseInt(params.get("page") ?? "1"),
   };
 }
 

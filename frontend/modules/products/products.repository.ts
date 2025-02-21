@@ -67,7 +67,7 @@ export const ProductsRepository = {
     await collection.insertOne({
       slug: data.slug,
       name: data.name,
-      description: data.descriptiton,
+      description: data.description,
       image: data.image,
       price: data.price,
       stock: data.stock,
@@ -86,6 +86,6 @@ export const ProductsRepository = {
     );
   },
   async initialize() {
-    await collection.createIndex({ slug: 1, name: 1, price: -1, stock: -1 });
+    await collection.createIndex({ slug: 1 });
   },
 };

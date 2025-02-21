@@ -24,7 +24,7 @@ export default function AddProductModal() {
     >
       <DialogTrigger asChild>
         <Button type="button">
-          <PlusIcon /> Añadir
+          <PlusIcon fill="#fff" /> Añadir
         </Button>
       </DialogTrigger>
       <DialogContent>

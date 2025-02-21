@@ -1,4 +1,5 @@
 "use client";
+import { Button } from "@/components/ui/button";
 import {
   Table,
   TableBody,
@@ -7,6 +8,7 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import { displayPrice } from "@/lib/utils";
 import { Product } from "@/modules/products/interfaces";
 import {
   ColumnDef,
@@ -14,11 +16,35 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
+import { EditIcon, EyeIcon } from "lucide-react";
 
 const columns: ColumnDef<Product>[] = [
   {
     accessorKey: "name",
     header: "Nombre",
+  },
+  {
+    header: "Precio c/u",
+    accessorFn: (data) => displayPrice(data.price),
+  },
+  {
+    accessorKey: "stock",
+    header: "Stock",
+  },
+  {
+    header: "Acciones",
+    cell() {
+      return (
+        <div className="flex gap-2">
+          <Button size="icon" variant="ghost">
+            <EditIcon />
+          </Button>
+          <Button size="icon" variant="ghost">
+            <EyeIcon />
+          </Button>
+        </div>
+      );
+    },
   },
 ];
 

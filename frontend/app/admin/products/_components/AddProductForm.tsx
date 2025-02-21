@@ -8,12 +8,14 @@ import Image from "next/image";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { z } from "zod";
+import slugify from "slugify";
+import { toast } from "@/hooks/use-toast";
 
 const formSchema = z.object({
   slug: z.string().min(5),
   name: z.string(),
   description: z.string(),
-  price: z.number().min(0),
+  price: z.number().min(0).multipleOf(0.01),
   stock: z.number().min(0),
 });
 
@@ -22,19 +24,33 @@ type FormSchema = z.infer<typeof formSchema>;
 export default function AddProductForm(props: { onClose: () => void }) {
   const { onClose } = props;
   const [imageFile, setImageFile] = useState<File | null>(null);
-  const { register, handleSubmit, watch, setValue } = useForm<FormSchema>({
-    resolver: zodResolver(formSchema),
-  });
+  const { register, handleSubmit, watch, setValue, formState } =
+    useForm<FormSchema>({
+      resolver: zodResolver(formSchema),
+    });
 
   const nameWatcher = watch("name");
   useEffect(() => {
     if (!nameWatcher || nameWatcher.length === 0) return;
-    setValue("slug", nameWatcher.toLocaleLowerCase().replaceAll(" ", "-"));
+    setValue("slug", slugify(nameWatcher, { lower: true, trim: true }));
   }, [nameWatcher, setValue]);
 
-  const onSubmit = (data: FormSchema) => {
-    console.log({ ...data, imageFile });
-    // createProduct({})
+  const onSubmit = async (data: FormSchema) => {
+    const res = await createProduct({
+      image:
+        "https://fastly.picsum.photos/id/237/360/400.jpg?hmac=8O7Y6XfTQeQoxyEVZ9NrApZRT3Z9GHXbkzhXTHAewqM",
+      ...data,
+      price: data.price * 100,
+    });
+    if (res?.error)
+      toast({ title: res.error.name, description: res.error.message });
+    else {
+      toast({
+        title: "Producto creado !",
+        description: "Producto añadido al sistema correctamente",
+      });
+      onClose();
+    }
   };
 
   return (
@@ -89,9 +105,14 @@ export default function AddProductForm(props: { onClose: () => void }) {
           <Label>Precio</Label>
           <Input
             type="number"
-            min={0}
+            min="0.00"
+            step=".01"
             placeholder="Ingrese su precio"
-            {...register("price")}
+            {...register("price", {
+              setValueAs(value) {
+                return parseFloat(value);
+              },
+            })}
           />
         </div>
         <div>
@@ -100,15 +121,26 @@ export default function AddProductForm(props: { onClose: () => void }) {
             type="number"
             min={0}
             placeholder="Ingrese su stock"
-            {...register("stock")}
+            {...register("stock", {
+              setValueAs(value) {
+                return parseInt(value);
+              },
+            })}
           />
         </div>
       </div>
       <div className="flex justify-end items-center gap-2">
-        <Button type="button" variant="outline" onClick={() => onClose()}>
+        <Button
+          type="button"
+          variant="outline"
+          onClick={() => onClose()}
+          disabled={formState.isSubmitting}
+        >
           Cancelar
         </Button>
-        <Button type="submit">Guardar</Button>
+        <Button type="submit" disabled={formState.isSubmitting}>
+          Guardar
+        </Button>
       </div>
     </form>
   );

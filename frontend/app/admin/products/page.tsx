@@ -15,8 +15,8 @@ export default async function AdminProductsPage(props: {
   });
 
   return (
-    <main>
-      <header className="flex justify-between items-end">
+    <main className="p-4">
+      <header className="flex justify-between items-end pb-4">
         <div>
           <h1 className="text-2xl font-bold">Productos</h1>
           <p>Lista de los productos actuales del ecomerce</p>

@@ -7,7 +7,7 @@ export interface Product {
   image: string;
   name: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  description: any[];
+  description: any;
   price: number;
   stock: number;
 }
@@ -20,7 +20,7 @@ export interface CreateProduct {
   image: string;
   name: string;
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  descriptiton: any[];
+  description: any;
 
   price: number;
   stock: number;
