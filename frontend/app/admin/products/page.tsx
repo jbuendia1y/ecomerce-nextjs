@@ -51,7 +51,12 @@ export default async function AdminProductsPage(props: {
           </div>
           <AddProductModal />
         </div>
-        <ProductsDataTable data={initialData.data} />
+        <ProductsDataTable
+          data={initialData.data}
+          currentPage={initialData.meta.pagination.page}
+          totalProducts={initialData.meta.pagination.total}
+          totalPages={initialData.meta.pagination.pageCount}
+        />
       </main>
     </div>
   );

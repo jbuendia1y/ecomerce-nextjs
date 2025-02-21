@@ -52,8 +52,8 @@ export default function EditProductForm(props: { defaultValues: Product }) {
       toast({ title: res.error.name, description: res.error.message });
     else {
       toast({
-        title: "Producto creado !",
-        description: "Producto añadido al sistema correctamente",
+        title: "Producto guardado !",
+        description: "Producto actualizado en el sistema correctamente",
       });
     }
   };

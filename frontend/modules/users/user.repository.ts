@@ -33,7 +33,7 @@ export const UserRepository = {
       meta: {
         pagination: {
           page: options.page,
-          pageCount: Math.floor(totalDocs / options.limit),
+          pageCount: Math.ceil(totalDocs / options.limit),
           pageSize: docs.length,
           total: totalDocs,
         },

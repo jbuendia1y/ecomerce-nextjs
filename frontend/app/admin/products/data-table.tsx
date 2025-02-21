@@ -1,6 +1,14 @@
 "use client";
 import { Button } from "@/components/ui/button";
 import {
+  Pagination,
+  PaginationContent,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "@/components/ui/pagination";
+import {
   Table,
   TableBody,
   TableCell,
@@ -14,6 +22,7 @@ import {
   ColumnDef,
   flexRender,
   getCoreRowModel,
+  getPaginationRowModel,
   useReactTable,
 } from "@tanstack/react-table";
 import { EditIcon } from "lucide-react";
@@ -50,11 +59,23 @@ const columns: ColumnDef<Product>[] = [
   },
 ];
 
-export const ProductsDataTable = (props: { data: Product[] }) => {
+export const ProductsDataTable = (props: {
+  data: Product[];
+  currentPage: number;
+  totalProducts: number;
+  totalPages: number;
+}) => {
   const table = useReactTable({
     columns,
     data: props.data,
     getCoreRowModel: getCoreRowModel(),
+    getPaginationRowModel: getPaginationRowModel(),
+    initialState: {
+      pagination: {
+        pageIndex: 0,
+        pageSize: props.totalProducts,
+      },
+    },
   });
 
   return (
@@ -101,6 +122,31 @@ export const ProductsDataTable = (props: { data: Product[] }) => {
           )}
         </TableBody>
       </Table>
+      <Pagination className="justify-end">
+        <PaginationContent>
+          <PaginationPrevious onClick={() => table.previousPage()} />
+          {Array.from({ length: props.totalPages }, (_v, idx) => idx + 1).map(
+            (pageNumber) => {
+              return (
+                <PaginationItem key={"admin-products-table-page-" + pageNumber}>
+                  <PaginationLink
+                    href={`?page=${pageNumber}`}
+                    {...(pageNumber === props.currentPage
+                      ? { isActive: true }
+                      : {})}
+                    onClick={() => {
+                      table.setPageIndex(pageNumber - 1);
+                    }}
+                  >
+                    {pageNumber}
+                  </PaginationLink>
+                </PaginationItem>
+              );
+            }
+          )}
+          <PaginationNext onClick={() => table.nextPage()} />
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 };
