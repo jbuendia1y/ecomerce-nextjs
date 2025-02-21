@@ -10,6 +10,9 @@ export interface Product {
   description: any;
   price: number;
   stock: number;
+
+  createdAt: Date;
+  updatedAt: Date;
 }
 
 export interface CreateProduct {

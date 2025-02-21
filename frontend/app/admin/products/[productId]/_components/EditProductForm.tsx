@@ -1,15 +1,18 @@
 "use client";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Product } from "@/modules/products/interfaces";
 import { Label } from "@/components/ui/label";
-import { createProduct } from "@/modules/products/services/createProduct";
-import { zodResolver } from "@hookform/resolvers/zod";
-import Image from "next/image";
-import { useEffect, useState } from "react";
-import { useForm } from "react-hook-form";
+import { Button } from "@/components/ui/button";
 import { z } from "zod";
 import slugify from "slugify";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { updateProduct } from "@/modules/products/services/updateProduct";
+import Image from "next/image";
 import { toast } from "@/hooks/use-toast";
+import { displayPrice } from "@/lib/utils";
+import { SaveIcon } from "lucide-react";
 
 const formSchema = z.object({
   slug: z.string().min(5),
@@ -21,8 +24,8 @@ const formSchema = z.object({
 
 type FormSchema = z.infer<typeof formSchema>;
 
-export default function AddProductForm(props: { onClose: () => void }) {
-  const { onClose } = props;
+export default function EditProductForm(props: { defaultValues: Product }) {
+  const { defaultValues } = props;
   const [imageFile, setImageFile] = useState<File | null>(null);
   const { register, handleSubmit, watch, setValue, formState } =
     useForm<FormSchema>({
@@ -39,7 +42,7 @@ export default function AddProductForm(props: { onClose: () => void }) {
   }, [nameWatcher, setValue]);
 
   const onSubmit = async (data: FormSchema) => {
-    const res = await createProduct({
+    const res = await updateProduct(props.defaultValues.id, {
       image:
         "https://fastly.picsum.photos/id/237/360/400.jpg?hmac=8O7Y6XfTQeQoxyEVZ9NrApZRT3Z9GHXbkzhXTHAewqM",
       ...data,
@@ -52,18 +55,19 @@ export default function AddProductForm(props: { onClose: () => void }) {
         title: "Producto creado !",
         description: "Producto añadido al sistema correctamente",
       });
-      onClose();
     }
   };
 
   return (
-    <form className="flex flex-col gap-4" onSubmit={handleSubmit(onSubmit)}>
+    <form onSubmit={handleSubmit(onSubmit)}>
       <div className="flex gap-2">
-        {imageFile && (
+        {(imageFile || defaultValues.image) && (
           <span className="block h-24 w-24 relative">
             <Image
-              src={URL.createObjectURL(imageFile)}
-              alt={nameWatcher}
+              src={
+                imageFile ? URL.createObjectURL(imageFile) : defaultValues.image
+              }
+              alt={(nameWatcher?.length ?? 0) === 0 ? "Product" : nameWatcher}
               fill
             />
           </span>
@@ -85,31 +89,39 @@ export default function AddProductForm(props: { onClose: () => void }) {
           />
         </label>
       </div>
-      <Label>Slug</Label>
+      <Label htmlFor="slug">Slug</Label>
       <Input
         type="text"
+        id="slug"
+        defaultValue={defaultValues.slug}
         placeholder="Ingrese el UID del producto"
         {...register("slug")}
       />
-      <Label>Nombre</Label>
+      <Label htmlFor="name">Nombre</Label>
       <Input
         type="text"
+        id="name"
+        defaultValue={defaultValues.name}
         placeholder="Ingrese el nombre del producto"
         {...register("name")}
       />
-      <Label>Descripción</Label>
+      <Label htmlFor="description">Descripción</Label>
       <Input
         type="text"
+        id="description"
+        defaultValue={defaultValues.description}
         placeholder="Ingrese la descripción del producto"
         {...register("description")}
       />
       <div className="flex gap-3">
         <div>
-          <Label>Precio</Label>
+          <Label htmlFor="price">Precio</Label>
           <Input
             type="number"
             min="0.00"
             step=".01"
+            id="price"
+            defaultValue={displayPrice(defaultValues.price)}
             placeholder="Ingrese su precio"
             {...register("price", {
               setValueAs(value) {
@@ -119,10 +131,12 @@ export default function AddProductForm(props: { onClose: () => void }) {
           />
         </div>
         <div>
-          <Label>Stock</Label>
+          <Label htmlFor="stock">Stock</Label>
           <Input
             type="number"
             min={0}
+            id="stock"
+            defaultValue={defaultValues.stock}
             placeholder="Ingrese su stock"
             {...register("stock", {
               setValueAs(value) {
@@ -136,12 +150,12 @@ export default function AddProductForm(props: { onClose: () => void }) {
         <Button
           type="button"
           variant="outline"
-          onClick={() => onClose()}
           disabled={formState.isSubmitting}
         >
-          Cancelar
+          Descartar
         </Button>
         <Button type="submit" disabled={formState.isSubmitting}>
+          <SaveIcon />
           Guardar
         </Button>
       </div>

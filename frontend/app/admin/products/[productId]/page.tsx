@@ -1,6 +1,5 @@
-import { getProducts } from "@/modules/products/services/getProducts";
-import { ProductsDataTable } from "./data-table";
-import AddProductModal from "./_components/AddProductModal";
+import EditProductForm from "./_components/EditProductForm";
+import { getProductDetails } from "@/modules/products/services/getProductDetails";
 import { SidebarTrigger } from "@/components/ui/sidebar";
 import { Separator } from "@/components/ui/separator";
 import {
@@ -12,17 +11,11 @@ import {
   BreadcrumbSeparator,
 } from "@/components/ui/breadcrumb";
 
-export default async function AdminProductsPage(props: {
-  searchParams: Promise<{ page?: string; q?: string }>;
+export default async function EditProductPage(props: {
+  params: Promise<{ productId: string }>;
 }) {
-  const searchParams = await props.searchParams;
-  const page = parseInt(searchParams.page ?? "1");
-  const search = searchParams.q;
-  const initialData = await getProducts({
-    page: page,
-    limit: 10,
-    search: search ?? null,
-  });
+  const product = await getProductDetails((await props.params).productId);
+  if (!product) return <></>;
 
   return (
     <div>
@@ -37,7 +30,11 @@ export default async function AdminProductsPage(props: {
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbPage>products</BreadcrumbPage>
+                <BreadcrumbLink href="/admin/products">products</BreadcrumbLink>
+              </BreadcrumbItem>
+              <BreadcrumbSeparator className="hidden md:block" />
+              <BreadcrumbItem className="hidden md:block">
+                <BreadcrumbPage>{product.slug}</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
@@ -46,12 +43,18 @@ export default async function AdminProductsPage(props: {
       <main className="px-4">
         <div className="flex justify-between items-end pb-4">
           <div>
-            <h1 className="text-2xl font-bold">Productos</h1>
+            <h1 className="text-2xl font-bold">Editar producto</h1>
             <p>Lista de los productos actuales del ecomerce</p>
           </div>
-          <AddProductModal />
+          {/* <div className="flex gap-2 items-center">
+            <Button variant="outline">Descartar</Button>
+            <Button>
+              <SaveIcon />
+              Guardar
+            </Button>
+          </div> */}
         </div>
-        <ProductsDataTable data={initialData.data} />
+        <EditProductForm defaultValues={product} />
       </main>
     </div>
   );

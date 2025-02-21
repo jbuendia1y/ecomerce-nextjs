@@ -2,11 +2,11 @@
 import { Product } from "../interfaces";
 import { ProductsRepository } from "../products.repository";
 
-type UpdateProduct = Omit<Product, "id">;
+type UpdateProduct = Omit<Omit<Omit<Product, "id">, "createdAt">, "updatedAt">;
 
 export const updateProduct = async (productId: string, data: UpdateProduct) => {
   const res = await ProductsRepository.update(productId, data)
-    .then(() => ({}))
+    .then(() => null)
     .catch((err) => ({ error: err }));
   return res;
 };

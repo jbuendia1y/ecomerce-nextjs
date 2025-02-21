@@ -16,7 +16,8 @@ import {
   getCoreRowModel,
   useReactTable,
 } from "@tanstack/react-table";
-import { EditIcon, EyeIcon } from "lucide-react";
+import { EditIcon } from "lucide-react";
+import Link from "next/link";
 
 const columns: ColumnDef<Product>[] = [
   {
@@ -33,15 +34,16 @@ const columns: ColumnDef<Product>[] = [
   },
   {
     header: "Acciones",
-    cell() {
+    accessorKey: "id",
+    cell(ctx) {
+      const productId = ctx.cell.getValue() as string;
       return (
         <div className="flex gap-2">
-          <Button size="icon" variant="ghost">
-            <EditIcon />
-          </Button>
-          <Button size="icon" variant="ghost">
-            <EyeIcon />
-          </Button>
+          <Link href={"/admin/products/" + productId}>
+            <Button size="icon" variant="ghost">
+              <EditIcon />
+            </Button>
+          </Link>
         </div>
       );
     },

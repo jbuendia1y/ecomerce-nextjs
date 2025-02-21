@@ -28,7 +28,7 @@ export default async function ProductDetailsPage({
       <main className="block min-h-[400px] max-w-5xl mx-auto mt-10 py-12 border border-slate-300 rounded-t-xl">
         <div className="flex flex-col lg:flex-row gap-3 justify-center lg:justify-normal items-center">
           <Image
-            src={product.image.url}
+            src={product.image}
             alt={product.name}
             width={360}
             height={400}

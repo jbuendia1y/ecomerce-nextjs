@@ -14,6 +14,9 @@ const createProductAdapted = (doc: WithId<Omit<Product, "id">>): Product => {
     description: doc.description,
     price: doc.price,
     stock: doc.stock,
+
+    createdAt: doc.createdAt,
+    updatedAt: doc.updatedAt,
   };
 };
 
@@ -71,6 +74,9 @@ export const ProductsRepository = {
       image: data.image,
       price: data.price,
       stock: data.stock,
+
+      createdAt: new Date(),
+      updatedAt: new Date(),
     });
   },
   async update(productId: string, data: Partial<Omit<Product, "id">>) {
@@ -82,6 +88,7 @@ export const ProductsRepository = {
         $set: {
           ...data,
         },
+        $currentDate: { updatedAt: true },
       }
     );
   },
