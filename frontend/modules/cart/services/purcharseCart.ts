@@ -18,7 +18,12 @@ export const purcharseCart = async (data: {
     clientId: session.user.id,
     createdAt: new Date().toUTCString(),
     items: data.cart.items.map((v) => ({
-      productId: v.product.id,
+      product: {
+        id: v.product.id,
+        image: v.product.image,
+        name: v.product.name,
+        price: v.product.price,
+      },
       quantity: v.quantity,
     })),
     totalPrice: data.cart.totalPrice,

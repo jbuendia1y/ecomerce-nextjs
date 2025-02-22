@@ -159,8 +159,6 @@ export default function CartProvider(props: PropsWithChildren) {
     delivery: null,
   });
 
-  useEffect(() => {}, []);
-
   useEffect(() => {
     if (!isLoaded) {
       const saved = getSavedCart();

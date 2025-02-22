@@ -16,7 +16,10 @@ export interface CreateOrder {
   totalProducts: number;
   totalPrice: number;
   status: OrderState;
-  items: Array<{ productId: string; quantity: number }>;
+  items: Array<{
+    product: { id: string; image: string; name: string; price: number };
+    quantity: number;
+  }>;
   delivery: OrderDelivery;
   clientId: string;
   createdAt: string;
@@ -28,7 +31,7 @@ export interface Order {
   totalProducts: number;
   totalPrice: number;
   items: Array<{
-    productId: string;
+    product: { id: string; image: string; name: string; price: number };
     quantity: number;
   }>;
   clientId: string;
