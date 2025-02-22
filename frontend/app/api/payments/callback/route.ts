@@ -1,7 +1,8 @@
 "use server";
 
-import { OrdersRepository } from "@/modules/orders/orders.repository";
+import { connectOrderPayment } from "@/modules/orders/services/connectOrderPayment";
 import { Payment } from "mercadopago";
+import { NextResponse } from "next/server";
 
 export const POST = async (req: Request) => {
   const payload = await req.json();
@@ -11,6 +12,13 @@ export const POST = async (req: Request) => {
 
   if (payment.status !== "approved") return new Response(null, { status: 200 });
   const orderId = payment.metadata.order_id;
-  await OrdersRepository.update(orderId, { paymentId: payment.id?.toString() });
+  const paymentId = payment.id?.toString();
+  if (!paymentId) {
+    console.error("Payment doesn't have an payment.id property");
+    return new NextResponse(null, { status: 200 });
+  }
+
+  await connectOrderPayment(orderId, paymentId);
   console.log("PAYMENT CALLBACK SUCCESS");
+  return new NextResponse(null, { status: 200 });
 };

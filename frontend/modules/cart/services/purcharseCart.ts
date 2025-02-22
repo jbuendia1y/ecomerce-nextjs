@@ -4,7 +4,8 @@ import { CartState } from "../cart.context";
 import { createOrder } from "@/modules/orders/services/createOrder";
 import { OrderState } from "@/modules/orders/interfaces";
 
-import { Preference } from "mercadopago";
+import { createOrderPaymentURL } from "@/modules/orders/services/createPaymentURL";
+import { redirect } from "next/navigation";
 
 export const purcharseCart = async (data: {
   cart: CartState;
@@ -33,21 +34,12 @@ export const purcharseCart = async (data: {
   });
 
   // Make purcharse logic with payment;
-  const preference = await new Preference({
-    accessToken: process.env.MP_ACCESS_TOKEN!,
-  }).create({
-    body: {
-      items: data.cart.items.map((item) => ({
-        id: item.product.id,
-        title: item.product.name,
-        unit_price: item.product.price / 100,
-        quantity: item.quantity,
-        picture_url: item.product.image,
-      })),
-      metadata: { order_id: orderId, client_id: session.user.id },
-    },
-  });
+  if (!orderId) {
+    return { error: new Error("Something was wrong in createOrder") };
+  }
 
-  const urlToPay = preference.init_point;
-  return { urlToPay };
+  const payload = await createOrderPaymentURL(orderId);
+  if (!payload.error) {
+    redirect(payload.urlToPay);
+  } else return payload;
 };
