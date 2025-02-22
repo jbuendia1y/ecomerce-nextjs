@@ -47,6 +47,13 @@ export const authOptions: NextAuthConfig = {
       },
     }),
   ],
+  callbacks: {
+    async session({ session, token }) {
+      if (token.sub) session.user.id = token.sub;
+      else token.sub = session.user.id;
+      return session;
+    },
+  },
   session: {
     strategy: "jwt",
   },

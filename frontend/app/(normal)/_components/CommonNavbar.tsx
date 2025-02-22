@@ -17,20 +17,11 @@ import {
 import Link from "next/link";
 import { signOut, useSession } from "next-auth/react";
 import NavbarCartButton from "./NavbarCartButton";
-import { useQuery } from "@tanstack/react-query";
-import { getMyProfile } from "@/modules/auth/services/getMyProfile";
+import RoleSideProtected from "@/components/role-side-protected";
 
 export default function CommonNavbar() {
-  const { status, data } = useSession();
-  const { data: user } = useQuery({
-    queryKey: ["user-data-profile", data?.user?.email],
-    queryFn: async () => {
-      return data?.user?.email ? await getMyProfile(data.user.email) : null;
-    },
-    enabled: !!data?.user?.email,
-  });
+  const { status } = useSession();
   const router = useRouter();
-  console.log({ user, status, data });
 
   const handleSearch = (search: string | null) => {
     const params = new URLSearchParams();
@@ -82,7 +73,7 @@ export default function CommonNavbar() {
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="min-w-48 bg-white">
-                {user?.role === "admin" ? (
+                <RoleSideProtected role="admin">
                   <DropdownMenuItem className="py-2 px-4">
                     <Link href="/admin">
                       <div className="flex flex-row gap-3 items-center">
@@ -91,8 +82,8 @@ export default function CommonNavbar() {
                       </div>
                     </Link>
                   </DropdownMenuItem>
-                ) : null}
-                {user?.role === "deliveryman" ? (
+                </RoleSideProtected>
+                <RoleSideProtected role="deliveryman">
                   <DropdownMenuItem className="py-2 px-4">
                     <Link href="/delivery">
                       <div className="flex flex-row gap-3 items-center">
@@ -101,7 +92,8 @@ export default function CommonNavbar() {
                       </div>
                     </Link>
                   </DropdownMenuItem>
-                ) : null}
+                </RoleSideProtected>
+
                 <DropdownMenuItem className="py-2 px-4">
                   <Link href="/my-orders">
                     <div className="flex flex-row gap-3 items-center">

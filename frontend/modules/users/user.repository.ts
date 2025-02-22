@@ -1,7 +1,7 @@
 import { db } from "@/lib/db";
 import { Paginate } from "../core/interfaces";
 import { AppUser, CreateAppUser } from "./interfaces";
-import { WithId } from "mongodb";
+import { ObjectId, WithId } from "mongodb";
 
 const collection = db.collection<Omit<AppUser, "id">>("users");
 
@@ -42,7 +42,7 @@ export const UserRepository = {
   },
   async findOne(userId: string) {
     const user = await collection.findOne({
-      id: { $eq: userId },
+      _id: { $eq: ObjectId.createFromHexString(userId) },
     });
     return user ? createAppUserAddapted(user) : null;
   },
