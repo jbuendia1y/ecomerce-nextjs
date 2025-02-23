@@ -15,7 +15,7 @@ export const createOrderPaymentURL = async (orderId: string) => {
         id: orderId + "-" + item.product.id,
         title: item.product.name,
         currency_id: "PEN",
-        unit_price: item.product.price,
+        unit_price: item.product.price / 100,
         quantity: item.quantity,
       })),
       metadata: {

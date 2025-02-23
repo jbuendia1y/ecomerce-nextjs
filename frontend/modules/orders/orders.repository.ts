@@ -2,7 +2,7 @@ import { db } from "@/lib/db";
 import { CreateOrder, Order } from "./interfaces";
 import { Filter, ObjectId, WithId } from "mongodb";
 
-const collection = db.collection<Omit<Order, "id">>("products");
+const collection = db.collection<Omit<Order, "id">>("orders");
 
 const createOrderAddapted = (doc: WithId<Omit<Order, "id">>): Order => {
   return {
@@ -44,7 +44,7 @@ export const OrdersRepository = {
   },
   async findOne(id: string) {
     const doc = await collection.findOne({
-      _id: { $eq: ObjectId.createFromBase64(id) },
+      _id: { $eq: ObjectId.createFromHexString(id) },
     });
     return doc ? createOrderAddapted(doc) : null;
   },
@@ -65,7 +65,7 @@ export const OrdersRepository = {
     data: Partial<Omit<Omit<Order, "id">, "createdAt">>
   ) {
     await collection.updateOne(
-      { _id: ObjectId.createFromBase64(id) },
+      { _id: ObjectId.createFromHexString(id) },
       { $set: { ...data } }
     );
   },
