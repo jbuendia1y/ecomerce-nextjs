@@ -10,6 +10,8 @@ import { useForm } from "react-hook-form";
 import { z } from "zod";
 import slugify from "slugify";
 import { toast } from "@/hooks/use-toast";
+import { uploadImage } from "@/modules/core/services/uploadImage";
+import type { UploadApiResponse } from "cloudinary";
 
 const formSchema = z.object({
   slug: z.string().min(5),
@@ -39,9 +41,18 @@ export default function AddProductForm(props: { onClose: () => void }) {
   }, [nameWatcher, setValue]);
 
   const onSubmit = async (data: FormSchema) => {
+    if (!imageFile) return;
+    const fileForm = new FormData();
+    fileForm.set("file", imageFile);
+    const uploadedImageResponse = await uploadImage(fileForm);
+    if (uploadedImageResponse.error) {
+      return;
+    }
+
+    const successRes = uploadedImageResponse as UploadApiResponse;
+
     const res = await createProduct({
-      image:
-        "https://fastly.picsum.photos/id/237/360/400.jpg?hmac=8O7Y6XfTQeQoxyEVZ9NrApZRT3Z9GHXbkzhXTHAewqM",
+      image: successRes.secure_url,
       ...data,
       price: data.price * 100,
     });

@@ -1,4 +1,5 @@
 "use client";
+import CldImage from "@/components/CldImage";
 import { Button } from "@/components/ui/button";
 import { Card, CardTitle } from "@/components/ui/card";
 import { cn, displayPrice } from "@/lib/utils";
@@ -27,13 +28,24 @@ export default function ProductCard(props: {
 
   return (
     <Card className={cn("block max-w-[320px]", props.className)}>
-      <Image
-        src={imageURL}
-        alt={productName}
-        width={300}
-        height={300}
-        className="object-contain"
-      />
+      {imageURL.includes("cloudinary") ? (
+        <CldImage
+          src={imageURL}
+          alt={productName}
+          width={300}
+          height={300}
+          className="object-contain"
+        />
+      ) : (
+        <Image
+          src={imageURL}
+          alt={productName}
+          width={300}
+          height={300}
+          className="object-contain"
+        />
+      )}
+
       <div className="p-2 mx-auto">
         <CardTitle className="text-2xl">
           <Link href={"/store/" + slug}>{productName}</Link>

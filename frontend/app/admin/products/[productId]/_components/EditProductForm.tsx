@@ -13,6 +13,8 @@ import Image from "next/image";
 import { toast } from "@/hooks/use-toast";
 import { displayPrice } from "@/lib/utils";
 import { SaveIcon } from "lucide-react";
+import { uploadImage } from "@/modules/core/services/uploadImage";
+import { UploadApiResponse } from "cloudinary";
 
 const formSchema = z.object({
   slug: z.string().min(5),
@@ -42,9 +44,20 @@ export default function EditProductForm(props: { defaultValues: Product }) {
   }, [nameWatcher, setValue]);
 
   const onSubmit = async (data: FormSchema) => {
+    let newImage = props.defaultValues.image;
+    if (imageFile) {
+      const fileForm = new FormData();
+      fileForm.set("file", imageFile);
+      const uploadedImageResponse = await uploadImage(fileForm);
+      if (uploadedImageResponse.error) {
+        return;
+      } else {
+        newImage = (uploadedImageResponse as UploadApiResponse).secure_url;
+      }
+    }
+
     const res = await updateProduct(props.defaultValues.id, {
-      image:
-        "https://fastly.picsum.photos/id/237/360/400.jpg?hmac=8O7Y6XfTQeQoxyEVZ9NrApZRT3Z9GHXbkzhXTHAewqM",
+      image: newImage,
       ...data,
       price: data.price * 100,
     });

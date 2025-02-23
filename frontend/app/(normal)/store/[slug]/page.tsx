@@ -1,9 +1,30 @@
 import { getProductDetailsFromSlug } from "@/modules/products/services/getProductDetails";
 import CommonFooter from "../../_components/CommonFooter";
 import CommonNavbar from "../../_components/CommonNavbar";
-import Image from "next/image";
 import AddToCartButton from "./_components/AddToCartButton";
 import { displayPrice } from "@/lib/utils";
+import CldImage from "@/components/CldImage";
+import { getCldOgImageUrl } from "next-cloudinary";
+import { notFound } from "next/navigation";
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const slug = (await params).slug;
+  const product = await getProductDetailsFromSlug(slug);
+  if (!product) return notFound();
+
+  return {
+    title: product.name,
+    openGraph: {
+      title: product.name,
+      images: [getCldOgImageUrl({ src: product.image })],
+      description: product.description,
+    },
+  };
+}
 
 export default async function ProductDetailsPage({
   params,
@@ -27,12 +48,13 @@ export default async function ProductDetailsPage({
       <CommonNavbar />
       <main className="block min-h-[400px] max-w-5xl mx-auto mt-10 py-12 border border-slate-300 rounded-t-xl">
         <div className="flex flex-col lg:flex-row gap-3 justify-center lg:justify-normal items-center">
-          <Image
+          <CldImage
             src={product.image}
             alt={product.name}
             width={360}
             height={400}
           />
+
           <div className="max-w-md pt-5">
             <h1 className="text-3xl font-bold">{product.name}</h1>
             <p className="text-xl my-2">
