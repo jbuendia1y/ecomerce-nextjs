@@ -19,6 +19,22 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { displayPrice } from "@/lib/utils";
+import { OrderState } from "@/modules/orders/interfaces";
+
+const displayOrderState = (state: OrderState): string => {
+  switch (state) {
+    case OrderState.wait:
+      return "en espera";
+    case OrderState.process:
+      return "en proceso";
+    case OrderState.completed:
+      return "completado";
+    case OrderState.cancelled:
+      return "cancelado";
+    default:
+      return "No establecido";
+  }
+};
 
 export default async function AdminOrderDetailsPage(props: {
   params: Promise<{ orderId: string }>;
@@ -39,7 +55,7 @@ export default async function AdminOrderDetailsPage(props: {
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbLink href="/admin/orders">orders</BreadcrumbLink>
+                <BreadcrumbLink href="/admin/orders">pedidos</BreadcrumbLink>
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem className="hidden md:block">
@@ -53,15 +69,15 @@ export default async function AdminOrderDetailsPage(props: {
         <div className="flex justify-between items-end pb-4">
           <div>
             <h1 className="text-2xl font-bold">Detalles del pedido</h1>
-            <p>Lista de los pedidos actuales del ecomerce</p>
+            <p>Información adicional del pedido realizado</p>
           </div>
         </div>
-        <section>
-          <h2>Detalles del envio</h2>
-          <ul>
+        <section className="max-w-96">
+          <h2 className="text-xl font-bold">Detalles del envio</h2>
+          <ul className="[&>li]:my-1.5 [&>li]:last:mb-0">
             <li className="flex justify-between items-center">
               <span>Estado</span>
-              <span>{order.status}</span>
+              <span>{displayOrderState(order.status)}</span>
             </li>
             <li className="flex justify-between items-center">
               <span>Ciudad</span>
@@ -82,7 +98,7 @@ export default async function AdminOrderDetailsPage(props: {
           </ul>
         </section>
         <section>
-          <h2>Productos comprados</h2>
+          <h2 className="text-xl font-bold">Productos comprados</h2>
           <Table>
             <TableHeader>
               <TableRow>
@@ -99,7 +115,7 @@ export default async function AdminOrderDetailsPage(props: {
                   </TableCell>
                   <TableCell>{item.quantity}</TableCell>
                   <TableCell className="text-right">
-                    S/.{item.product.price}
+                    S/.{displayPrice(item.product.price)}
                   </TableCell>
                 </TableRow>
               ))}

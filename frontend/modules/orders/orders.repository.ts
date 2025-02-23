@@ -1,5 +1,5 @@
 import { db } from "@/lib/db";
-import { CreateOrder, Order } from "./interfaces";
+import { CreateOrder, Order, OrderState } from "./interfaces";
 import { Filter, ObjectId, WithId } from "mongodb";
 
 const collection = db.collection<Omit<Order, "id">>("orders");
@@ -19,9 +19,16 @@ const createOrderAddapted = (doc: WithId<Omit<Order, "id">>): Order => {
 };
 
 export const OrdersRepository = {
-  async find(options: { page: number; limit: number; clientId?: string }) {
+  async find(options: {
+    orderState?: OrderState;
+    page: number;
+    limit: number;
+    clientId?: string;
+  }) {
     let filter: Filter<Omit<Order, "id">> = {};
-    if (options.clientId) filter = { clientId: { $eq: options.clientId } };
+    if (options.orderState) filter = { status: { $eq: options.orderState } };
+    if (options.clientId)
+      filter = { ...filter, clientId: { $eq: options.clientId } };
 
     const query = collection.find(filter, {
       limit: options.limit,

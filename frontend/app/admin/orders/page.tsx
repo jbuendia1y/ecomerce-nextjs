@@ -11,13 +11,33 @@ import {
 } from "@/components/ui/breadcrumb";
 import { getOrders } from "@/modules/orders/services/getOrders";
 import OrderStateFiltersList from "./_components/OrderStateFiltersList";
+import { OrderState } from "@/modules/orders/interfaces";
+
+const isOrderState = (value: string): value is OrderState => {
+  if (
+    value === OrderState.wait ||
+    value === OrderState.process ||
+    value === OrderState.completed ||
+    value === OrderState.cancelled
+  ) {
+    return true;
+  }
+  return false;
+};
 
 export default async function AdminOrdersPage(props: {
-  searchParams: Promise<{ page?: string; q?: string }>;
+  searchParams: Promise<{ page?: string; q?: string; state?: string }>;
 }) {
   const searchParams = await props.searchParams;
+  const currentOrderState = searchParams.state
+    ? isOrderState(searchParams.state)
+      ? searchParams.state
+      : undefined
+    : undefined;
   const page = parseInt(searchParams.page ?? "1");
+
   const initialData = (await getOrders({
+    orderState: currentOrderState,
     page: page,
     limit: 10,
   })) ?? {
@@ -40,7 +60,7 @@ export default async function AdminOrdersPage(props: {
               </BreadcrumbItem>
               <BreadcrumbSeparator className="hidden md:block" />
               <BreadcrumbItem className="hidden md:block">
-                <BreadcrumbPage>orders</BreadcrumbPage>
+                <BreadcrumbPage>pedidos</BreadcrumbPage>
               </BreadcrumbItem>
             </BreadcrumbList>
           </Breadcrumb>
