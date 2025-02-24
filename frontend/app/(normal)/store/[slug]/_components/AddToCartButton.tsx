@@ -13,7 +13,7 @@ export default function AddToCartButton(props: { product: Product }) {
         addItem({
           id: product.id,
           name: product.name,
-          image: product.image.url,
+          image: product.image,
           price: product.price,
           slug: product.slug,
           stock: product.stock,
