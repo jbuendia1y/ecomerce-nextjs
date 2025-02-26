@@ -4,6 +4,7 @@ import { displayPrice } from "@/lib/utils";
 import CldImage from "@/components/CldImage";
 import { getCldOgImageUrl } from "next-cloudinary";
 import { notFound } from "next/navigation";
+import ProductViewTracker from "./_components/ProductViewTracker";
 
 export async function generateMetadata({
   params,
@@ -16,6 +17,7 @@ export async function generateMetadata({
 
   return {
     title: product.name,
+    description: product.description,
     openGraph: {
       title: product.name,
       images: [getCldOgImageUrl({ src: product.image })],
@@ -36,6 +38,7 @@ export default async function ProductDetailsPage({
 
   return (
     <main className="block min-h-[400px] max-w-5xl mx-auto mt-10 py-12 border border-slate-300 rounded-t-xl">
+      <ProductViewTracker productId={product.id} />
       <div className="flex flex-col lg:flex-row gap-3 justify-center lg:justify-normal items-center">
         <CldImage
           src={product.image}
@@ -46,12 +49,7 @@ export default async function ProductDetailsPage({
 
         <div className="max-w-md pt-5">
           <h1 className="text-3xl font-bold">{product.name}</h1>
-          <p className="text-xl my-2">
-            Lorem ipsum dolor, sit amet consectetur adipisicing elit.
-            Exercitationem iure excepturi harum ea recusandae asperiores dolorum
-            nesciunt provident, suscipit, fuga nihil repellendus. Laborum, sed
-            ipsa dicta eum hic cum suscipit.
-          </p>
+          <p className="text-xl my-2">{product.description}</p>
           <p className="text-2xl font-bold my-1">
             S/.{displayPrice(product.price)}
           </p>

@@ -1,6 +1,8 @@
 "use server";
 
+import { increseProductPurcharse } from "@/modules/meta-products/services/increseProductPurcharse";
 import { connectOrderPayment } from "@/modules/orders/services/connectOrderPayment";
+import { getOrderDetails } from "@/modules/orders/services/getOrderDetails";
 import { Payment } from "mercadopago";
 import { NextResponse } from "next/server";
 
@@ -35,6 +37,13 @@ export const POST = async (req: Request) => {
   }
 
   await connectOrderPayment(orderId, paymentId);
+
+  const order = await getOrderDetails(orderId);
+  if (!order) return new NextResponse(null, { status: 200 });
+  for (const item of order.items) {
+    await increseProductPurcharse(item.product.id);
+  }
+
   console.log("PAYMENT CALLBACK SUCCESS");
   return new NextResponse(null, { status: 200 });
 };

@@ -27,7 +27,7 @@ export default function ProductCard(props: {
   const { addItem } = useCart();
 
   return (
-    <Card className={cn("block max-w-[320px]", props.className)}>
+    <Card className={cn("flex flex-col max-w-[320px]", props.className)}>
       {imageURL.includes("cloudinary") ? (
         <CldImage
           src={imageURL}
@@ -46,26 +46,32 @@ export default function ProductCard(props: {
         />
       )}
 
-      <div className="p-2 mx-auto">
+      <div className="flex flex-grow flex-col p-2 mx-auto">
         <CardTitle className="text-2xl">
-          <Link href={"/store/" + slug}>{productName}</Link>
+          <Link href={"/store/" + slug} className="line-clamp-3">
+            {productName}
+          </Link>
         </CardTitle>
-        <p className="text-2xl font-bold mt-2 py-1">S/.{displayPrice(price)}</p>
-        <Button
-          className="w-full"
-          onClick={() => {
-            addItem({
-              id: productId,
-              name: productName,
-              image: imageURL,
-              price,
-              stock,
-              slug,
-            });
-          }}
-        >
-          Añadir al carrito
-        </Button>
+        <div className="mt-auto">
+          <p className="text-2xl font-bold mt-2 py-1">
+            S/.{displayPrice(price)}
+          </p>
+          <Button
+            className="w-full"
+            onClick={() => {
+              addItem({
+                id: productId,
+                name: productName,
+                image: imageURL,
+                price,
+                stock,
+                slug,
+              });
+            }}
+          >
+            Añadir al carrito
+          </Button>
+        </div>
       </div>
     </Card>
   );
