@@ -6,6 +6,8 @@ import {
 } from "@/components/ui/breadcrumb";
 import { Separator } from "@/components/ui/separator";
 import { SidebarTrigger } from "@/components/ui/sidebar";
+import DashboardSells from "./_components/DashboardSells";
+import DashboardPopularProducts from "./_components/DashboardPopularProducts";
 
 export default function Page() {
   return (
@@ -28,9 +30,9 @@ export default function Page() {
         </div>
       </header>
       <div className="flex flex-1 flex-col gap-4 p-4 pt-0">
-        <div className="grid auto-rows-min gap-4 md:grid-cols-3">
-          <h2 className="text-2xl font-bold">Ventas realizadas</h2>
-          <h2 className="text-2xl font-bold">Productos populares</h2>
+        <div className="grid auto-rows-min gap-4 md:grid-cols-2">
+          <DashboardSells />
+          <DashboardPopularProducts />
         </div>
         <div className="min-h-[100vh] flex-1 rounded-xl bg-slate-100/50 md:min-h-min dark:bg-slate-800/50">
           <p>Hola mundo</p>

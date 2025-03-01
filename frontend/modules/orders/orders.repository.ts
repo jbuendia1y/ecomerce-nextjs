@@ -24,15 +24,19 @@ export const OrdersRepository = {
     page: number;
     limit: number;
     clientId?: string;
+    isPaid?: boolean;
+    sort?: { createdAt?: "asc" | "desc" };
   }) {
     let filter: Filter<Omit<Order, "id">> = {};
     if (options.orderState) filter = { status: { $eq: options.orderState } };
     if (options.clientId)
       filter = { ...filter, clientId: { $eq: options.clientId } };
+    if (options.isPaid) filter = { ...filter, paymentId: { $exists: true } };
 
     const query = collection.find(filter, {
       limit: options.limit,
       skip: (options.page - 1) * options.limit,
+      sort: options.sort,
     });
     const totalDocs = await collection.countDocuments(filter);
     const docs = await query.toArray();
