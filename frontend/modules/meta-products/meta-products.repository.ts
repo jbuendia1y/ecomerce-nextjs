@@ -14,11 +14,12 @@ const collection =
 const createPopularProductAddapted = (
   doc: WithId<Omit<DbPopularProduct, "id">>
 ): PopularProduct => {
-  console.log(doc);
+  const visitCounter = Number(doc.visitCounter);
+  const purcharseCounter = Number(doc.purcharseCounter);
   return {
     productId: doc.productId.toHexString(),
-    visitCounter: Number(doc.visitCounter),
-    purcharseCounter: Number(doc.purcharseCounter),
+    visitCounter: isNaN(visitCounter) ? 0 : visitCounter,
+    purcharseCounter: isNaN(purcharseCounter) ? 0 : purcharseCounter,
   };
 };
 
