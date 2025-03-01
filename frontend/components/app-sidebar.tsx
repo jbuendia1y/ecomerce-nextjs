@@ -3,7 +3,6 @@
 import * as React from "react";
 import {
   BoxIcon,
-  Landmark,
   LayoutDashboardIcon,
   Settings,
   Store,
@@ -23,11 +22,6 @@ import {
 
 // This is sample data.
 const data = {
-  user: {
-    name: "shadcn",
-    email: "m@example.com",
-    avatar: "/avatars/shadcn.jpg",
-  },
   navMain: [
     {
       title: "Dashboard",
@@ -39,12 +33,6 @@ const data = {
       title: "Pedidos",
       url: "/admin/orders",
       icon: BoxIcon,
-      isActive: false,
-    },
-    {
-      title: "Pagos",
-      url: "/admin/payments",
-      icon: Landmark,
       isActive: false,
     },
     {
@@ -81,7 +69,7 @@ export function AppSidebar({ ...props }: React.ComponentProps<typeof Sidebar>) {
         <NavMain title="Sistema" items={data.navSystem}></NavMain>
       </SidebarContent>
       <SidebarFooter>
-        <NavUser user={data.user} />
+        <NavUser />
       </SidebarFooter>
       <SidebarRail />
     </Sidebar>
