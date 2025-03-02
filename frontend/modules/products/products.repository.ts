@@ -36,6 +36,12 @@ export const ProductsRepository = {
     const query = collection.find(filter, {
       limit: options.limit,
       skip: (options.page - 1) * options.limit,
+      ...(filter.$text
+        ? {
+            projection: { score: { $meta: "textScore" } },
+            sort: { textScore: "desc" },
+          }
+        : {}),
     });
     const totalDocs = await collection.countDocuments(filter);
     const docs = await query.toArray();
@@ -93,6 +99,8 @@ export const ProductsRepository = {
     );
   },
   async initialize() {
-    await collection.createIndex({ slug: 1 });
+    await collection.createIndex({ slug: 1 }, { unique: true });
+    // In MongoDbAtlas you need tu created textIndex in him dashboard or API
+    // await collection.createIndex({ name: "text", description: "text" });
   },
 };
