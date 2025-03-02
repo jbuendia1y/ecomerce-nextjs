@@ -11,19 +11,7 @@ import {
 } from "@/components/ui/breadcrumb";
 import { getOrders } from "@/modules/orders/services/getOrders";
 import OrderStateFiltersList from "./_components/OrderStateFiltersList";
-import { OrderState } from "@/modules/orders/interfaces";
-
-const isOrderState = (value: string): value is OrderState => {
-  if (
-    value === OrderState.wait ||
-    value === OrderState.process ||
-    value === OrderState.completed ||
-    value === OrderState.cancelled
-  ) {
-    return true;
-  }
-  return false;
-};
+import { isOrderState } from "@/modules/orders/utils";
 
 export default async function AdminOrdersPage(props: {
   searchParams: Promise<{ page?: string; q?: string; state?: string }>;

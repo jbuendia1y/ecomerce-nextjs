@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/table";
 import { displayPrice } from "@/lib/utils";
 import { Order } from "@/modules/orders/interfaces";
+import { displayOrderState } from "@/modules/orders/utils";
 import {
   ColumnDef,
   flexRender,
@@ -38,7 +39,7 @@ const columns: ColumnDef<Order>[] = [
     header: "N° de productos",
   },
   {
-    accessorKey: "status",
+    accessorFn: (data) => displayOrderState(data.status),
     header: "Estado",
   },
   {

@@ -19,22 +19,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { displayPrice } from "@/lib/utils";
-import { OrderState } from "@/modules/orders/interfaces";
-
-const displayOrderState = (state: OrderState): string => {
-  switch (state) {
-    case OrderState.wait:
-      return "en espera";
-    case OrderState.process:
-      return "en proceso";
-    case OrderState.completed:
-      return "completado";
-    case OrderState.cancelled:
-      return "cancelado";
-    default:
-      return "No establecido";
-  }
-};
+import { displayOrderState } from "@/modules/orders/utils";
 
 export default async function AdminOrderDetailsPage(props: {
   params: Promise<{ orderId: string }>;
