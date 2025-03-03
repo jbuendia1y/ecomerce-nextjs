@@ -9,6 +9,7 @@ export const loginUser = async (payload: {
 }): Promise<AppUser | null> => {
   const user = await UserRepository.findOneByEmail(payload.email);
   if (!user) return null;
+  if (!user.password) return null;
 
   const isEqual = await bcrypt.compare(payload.password, user.password);
   if (!isEqual) return null;

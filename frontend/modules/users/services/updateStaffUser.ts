@@ -1,11 +1,10 @@
 "use server";
 
-import { auth } from "@/lib/auth";
-import { getMyProfile } from "@/modules/auth/services/getMyProfile";
 import { UserRepository } from "../user.repository";
 import { UpdateAppUser } from "../interfaces";
 import encryptPassword from "@/modules/core/services/encryptPassword";
 import { z } from "zod";
+import { getCurrentAuthUser } from "@/modules/auth/services/getCurrentAuthUser";
 
 const formSchema = z.object({
   userId: z.string(),
@@ -16,13 +15,10 @@ const formSchema = z.object({
 });
 
 export const updateStaffUser = async (userId: string, data: UpdateAppUser) => {
-  const session = await auth();
-  if (!session?.user?.id) return { error: new Error("Needs authentication") };
-
-  const profile = await getMyProfile(session?.user.id);
-  if (!profile) return { error: new Error("Needs authentication") };
-  if (profile.role !== "admin")
-    return { error: new Error("Needs authentication") };
+  const isAdmin = await getCurrentAuthUser().then(
+    (res) => res.user?.role === "admin"
+  );
+  if (!isAdmin) return { error: new Error("Needs authentication") };
 
   const {
     success,

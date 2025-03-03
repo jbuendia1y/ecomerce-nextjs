@@ -1,5 +1,5 @@
 "use client";
-import { getMyProfile } from "@/modules/auth/services/getMyProfile";
+import { getUserProfile } from "@/modules/users/services/getUserProfile";
 import { AppUser } from "@/modules/users/interfaces";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
@@ -15,7 +15,7 @@ export default function RoleSideProtected(
   const { data: user } = useQuery({
     queryKey: ["user-data-profile", data?.user?.id],
     queryFn: async () => {
-      return data?.user?.id ? await getMyProfile(data.user.id) : null;
+      return data?.user?.id ? await getUserProfile(data.user.id) : null;
     },
     enabled: !!data?.user?.id,
   });

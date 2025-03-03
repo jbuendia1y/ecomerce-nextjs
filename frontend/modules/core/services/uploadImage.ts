@@ -1,23 +1,19 @@
 "use server";
-import { auth } from "@/lib/auth";
-import { getMyProfile } from "@/modules/auth/services/getMyProfile";
+import { getCurrentAuthUser } from "@/modules/auth/services/getCurrentAuthUser";
 import { v2 as cloudinary, UploadApiResponse, v2 } from "cloudinary";
 
 export const uploadImage = async (formData: FormData) => {
-  const session = await auth();
-  if (!session || !session.user?.id)
-    return { error: new Error("Unauthorizated operation") };
-
-  const userProfile = await getMyProfile(session.user.id);
-  if (userProfile?.role !== "admin")
-    return { error: new Error("Unauthorizated operation") };
+  const isAdmin = await getCurrentAuthUser().then(
+    (res) => res.user?.role === "admin"
+  );
+  if (!isAdmin) return { error: new Error("Unauthorizated operation") };
 
   const file = formData.get("file") as File;
   if (!file) {
     return { error: new Error("Missing *file* field required to upload") };
   }
 
-  const buffer = new Uint8Array(await file.arrayBuffer())
+  const buffer = new Uint8Array(await file.arrayBuffer());
 
   const promised = new Promise<UploadApiResponse>((resolve, reject) => {
     v2.config({

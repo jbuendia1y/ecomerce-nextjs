@@ -1,18 +1,12 @@
-import { auth } from "@/lib/auth";
+"use server";
+import { getCurrentAuthUser } from "@/modules/auth/services/getCurrentAuthUser";
 import { updateStaffUser } from "./updateStaffUser";
-import { getMyProfile } from "@/modules/auth/services/getMyProfile";
 
 export const revokeStaffUserRole = async (userId: string) => {
-  const session = await auth();
-  if (!session?.user?.id) {
-    return { error: new Error("Unauthorizate") };
-  }
-  const isAdmin = await getMyProfile(session.user.id).then(
-    (u) => u?.role === "admin"
+  const isAdmin = await getCurrentAuthUser().then(
+    (res) => res.user?.role === "admin"
   );
-  if (!isAdmin) {
-    return { error: new Error("Unauthorizate") };
-  }
+  if (!isAdmin) return { error: new Error("Needs authentication") };
 
   if (typeof userId !== "string") {
     return { error: new Error("userId must be a string") };
