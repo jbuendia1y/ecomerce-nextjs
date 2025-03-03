@@ -1,10 +1,10 @@
 "use server";
+import { createAppUserExposed } from "@/modules/users/adapters";
 import { UserRepository } from "@/modules/users/user.repository";
 
 export const getMyProfile = async (userId: string) => {
   const user = await UserRepository.findOne(userId);
   if (!user) return null;
-  // eslint-disable-next-line @typescript-eslint/no-unused-vars
-  const { password: _, ...userData } = user;
+  const userData = createAppUserExposed(user);
   return userData;
 };

@@ -1,6 +1,6 @@
 "use server";
-import bcrypt from "bcryptjs";
 import { UserRepository } from "@/modules/users/user.repository";
+import encryptPassword from "@/modules/core/services/encryptPassword";
 
 export const registerUser = async (payload: {
   name: string;
@@ -10,8 +10,7 @@ export const registerUser = async (payload: {
   const exist = await UserRepository.findOneByEmail(payload.email);
   if (exist) throw new Error("User is already taken");
 
-  const salt = await bcrypt.genSalt(10);
-  const password = await bcrypt.hash(payload.password, salt);
+  const password = await encryptPassword(payload.password);
 
   await UserRepository.create({
     name: payload.name,
