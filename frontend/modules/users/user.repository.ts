@@ -1,6 +1,6 @@
 import { db } from "@/lib/db";
 import { Paginate } from "../core/interfaces";
-import { AppUser, CreateAppUser } from "./interfaces";
+import { AppUser, CreateAppUser, UpdateAppUser } from "./interfaces";
 import { ObjectId, WithId } from "mongodb";
 
 const collection = db.collection<Omit<AppUser, "id">>("users");
@@ -21,10 +21,17 @@ export const UserRepository = {
   async find(options: {
     page: number;
     limit: number;
+    role?: AppUser["role"] | Array<AppUser["role"]>;
   }): Promise<Paginate<AppUser>> {
-    const query = collection.find();
+    const query = collection.find({ role: options.role });
     const totalDocs = await collection.countDocuments(
-      {},
+      {
+        role: Array.isArray(options.role)
+          ? {
+              $in: options.role,
+            }
+          : options.role,
+      },
       { skip: (options.page - 1) * options.limit }
     );
     const docs = await query.toArray();
@@ -50,6 +57,10 @@ export const UserRepository = {
     const user = await collection.findOne({ email: { $eq: email } });
     return user ? createAppUserAddapted(user) : null;
   },
+  /**
+   * This method has been called when user wants to create an account with him email
+   * @param data
+   */
   async create(data: CreateAppUser) {
     await collection.insertOne({
       name: data.name,
@@ -58,5 +69,11 @@ export const UserRepository = {
       image: null,
       emailVerified: false,
     });
+  },
+  async update(id: string, data: UpdateAppUser) {
+    await collection.updateOne(
+      { _id: { $eq: ObjectId.createFromHexString(id) } },
+      { $set: data }
+    );
   },
 };

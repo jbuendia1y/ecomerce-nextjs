@@ -15,4 +15,15 @@ export interface AppUser {
   role?: "admin" | "deliveryman";
 }
 
+export interface UpdateAppUser {
+  image?: string | null;
+  name?: string;
+
+  email?: string;
+  password?: string;
+
+  emailVerified?: boolean;
+  role?: AppUser["role"];
+}
+
 export type ExposedAppUser = Omit<AppUser, "password">;
